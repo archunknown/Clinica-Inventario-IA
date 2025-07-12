@@ -1,0 +1,616 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - Sistema de Inventario Clínica</title>
+    <style>
+        :root {
+            --color1: #060606;
+            --color2: #06131e;
+            --color3: #0c2437;
+            --color4: #123752;
+            --color5: #184b71;
+            --accent: #e91e63;
+            --accent-hover: #c2185b;
+            --text-light: #f5f5f5;
+            --text-muted: #a0a0a0;
+            --success: #4caf50;
+            --warning: #ff9800;
+            --danger: #f44336;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background: var(--color1);
+            color: var(--text-light);
+            min-height: 100vh;
+            display: flex;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: 280px;
+            background: var(--color2);
+            padding: 30px 20px;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 2px 0 10px rgba(0,0,0,0.3);
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 50px;
+            padding-bottom: 30px;
+            border-bottom: 1px solid var(--color3);
+        }
+
+        .logo-icon {
+            width: 50px;
+            height: 50px;
+            background: var(--color5);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            font-weight: bold;
+        }
+
+        .logo-text h2 {
+            font-size: 1.5rem;
+            color: var(--text-light);
+            font-weight: 700;
+        }
+
+        .logo-text p {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+        }
+
+        .nav-menu {
+            flex: 1;
+        }
+
+        .nav-item {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            padding: 15px 20px;
+            margin-bottom: 10px;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            color: var(--text-light);
+        }
+
+        .nav-item:hover {
+            background: var(--color3);
+            transform: translateX(5px);
+        }
+
+        .nav-item.active {
+            background: var(--color4);
+            box-shadow: 0 4px 15px rgba(24, 75, 113, 0.3);
+        }
+
+        .nav-icon {
+            width: 24px;
+            height: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .user-profile {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            padding: 20px;
+            background: var(--color3);
+            border-radius: 12px;
+            margin-top: auto;
+        }
+
+        .user-avatar {
+            width: 45px;
+            height: 45px;
+            background: var(--color5);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+        }
+
+        /* Main Content */
+        .main-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Header */
+        .header {
+            background: var(--color2);
+            padding: 20px 40px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.3);
+        }
+
+        .header-left h1 {
+            font-size: 1.8rem;
+            color: var(--text-light);
+            margin-bottom: 5px;
+        }
+
+        .header-left p {
+            color: var(--text-muted);
+        }
+
+        .header-actions {
+            display: flex;
+            gap: 15px;
+        }
+
+        .header-btn {
+            padding: 10px 20px;
+            background: var(--color3);
+            border: none;
+            border-radius: 8px;
+            color: var(--text-light);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .header-btn:hover {
+            background: var(--color4);
+            transform: translateY(-2px);
+        }
+
+        .header-btn.primary {
+            background: var(--accent);
+        }
+
+        .header-btn.primary:hover {
+            background: var(--accent-hover);
+        }
+
+        /* Dashboard Content */
+        .dashboard-content {
+            flex: 1;
+            padding: 40px;
+            overflow-y: auto;
+        }
+
+        /* Stats Cards */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 25px;
+            margin-bottom: 40px;
+        }
+
+        .stat-card {
+            background: var(--color2);
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+            transition: all 0.3s ease;
+            border: 1px solid transparent;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.4);
+            border-color: var(--color4);
+        }
+
+        .stat-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .stat-icon {
+            width: 50px;
+            height: 50px;
+            background: var(--color3);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+        }
+
+        .stat-value {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: var(--text-light);
+            margin-bottom: 5px;
+        }
+
+        .stat-label {
+            color: var(--text-muted);
+            font-size: 1rem;
+        }
+
+        .stat-trend {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            font-size: 0.9rem;
+            margin-top: 15px;
+        }
+
+        .trend-up {
+            color: var(--success);
+        }
+
+        .trend-down {
+            color: var(--danger);
+        }
+
+        /* Charts Section */
+        .charts-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(500px, 1fr));
+            gap: 25px;
+            margin-bottom: 40px;
+        }
+
+        .chart-card {
+            background: var(--color2);
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+        }
+
+        .chart-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+        }
+
+        .chart-title {
+            font-size: 1.3rem;
+            font-weight: 600;
+        }
+
+        .chart-placeholder {
+            height: 300px;
+            background: var(--color3);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--text-muted);
+        }
+
+        /* Recent Activity */
+        .activity-card {
+            background: var(--color2);
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+        }
+
+        .activity-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+        }
+
+        .activity-list {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .activity-item {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            padding: 15px;
+            background: var(--color3);
+            border-radius: 10px;
+            transition: all 0.3s ease;
+        }
+
+        .activity-item:hover {
+            background: var(--color4);
+        }
+
+        .activity-icon {
+            width: 40px;
+            height: 40px;
+            background: var(--color4);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .activity-details {
+            flex: 1;
+        }
+
+        .activity-title {
+            font-weight: 600;
+            margin-bottom: 3px;
+        }
+
+        .activity-time {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+        }
+
+        /* Responsive */
+        @media (max-width: 1200px) {
+            .charts-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 768px) {
+            body {
+                flex-direction: column;
+            }
+
+            .sidebar {
+                width: 100%;
+                padding: 20px;
+            }
+
+            .dashboard-content {
+                padding: 20px;
+            }
+
+            .header {
+                padding: 20px;
+            }
+
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Iconos simulados con caracteres Unicode */
+        .icon-dashboard::before { content: "📊"; }
+        .icon-inventory::before { content: "📦"; }
+        .icon-sales::before { content: "💰"; }
+        .icon-cart::before { content: "🛒"; }
+        .icon-ai::before { content: "🤖"; }
+        .icon-settings::before { content: "⚙️"; }
+        .icon-logout::before { content: "🚪"; }
+        .icon-notification::before { content: "🔔"; }
+        .icon-search::before { content: "🔍"; }
+    </style>
+</head>
+<body>
+    <!-- Sidebar -->
+    <aside class="sidebar">
+        <div class="logo">
+            <div class="logo-icon">CI</div>
+            <div class="logo-text">
+                <h2>Clínica Inventario</h2>
+                <p>Sistema de Gestión</p>
+            </div>
+        </div>
+
+        <nav class="nav-menu">
+            <a href="#" class="nav-item active">
+                <span class="nav-icon icon-dashboard"></span>
+                <span>Dashboard</span>
+            </a>
+            <a href="inventario.html" class="nav-item">
+                <span class="nav-icon icon-inventory"></span>
+                <span>Inventario</span>
+            </a>
+            <a href="ventas.html" class="nav-item">
+                <span class="nav-icon icon-sales"></span>
+                <span>Ventas</span>
+            </a>
+            <a href="carrito.html" class="nav-item">
+                <span class="nav-icon icon-cart"></span>
+                <span>Carrito</span>
+            </a>
+            <a href="#" class="nav-item">
+                <span class="nav-icon icon-ai"></span>
+                <span>Asistente IA</span>
+            </a>
+            <a href="#" class="nav-item">
+                <span class="nav-icon icon-settings"></span>
+                <span>Configuración</span>
+            </a>
+            <a href="login.html" class="nav-item">
+                <span class="nav-icon icon-logout"></span>
+                <span>Cerrar Sesión</span>
+            </a>
+        </nav>
+
+        <div class="user-profile">
+            <div class="user-avatar">U</div>
+            <div>
+                <div style="font-weight: 600;">Usuario</div>
+                <div style="font-size: 0.85rem; color: var(--text-muted);">Administrador</div>
+            </div>
+        </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <!-- Header -->
+        <header class="header">
+            <div class="header-left">
+                <h1>Dashboard</h1>
+                <p>Bienvenido al sistema de gestión de inventario</p>
+            </div>
+            <div class="header-actions">
+                <button class="header-btn">
+                    <span class="icon-search"></span>
+                    <span>Buscar</span>
+                </button>
+                <button class="header-btn">
+                    <span class="icon-notification"></span>
+                    <span>Notificaciones</span>
+                </button>
+                <button class="header-btn primary">
+                    <span>+ Nueva Venta</span>
+                </button>
+            </div>
+        </header>
+
+        <!-- Dashboard Content -->
+        <div class="dashboard-content">
+            <!-- Stats Cards -->
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-header">
+                        <div>
+                            <div class="stat-value">1,234</div>
+                            <div class="stat-label">Productos en Stock</div>
+                            <div class="stat-trend trend-up">
+                                <span>↑</span>
+                                <span>12% vs mes anterior</span>
+                            </div>
+                        </div>
+                        <div class="stat-icon icon-inventory"></div>
+                    </div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-header">
+                        <div>
+                            <div class="stat-value">$45,678</div>
+                            <div class="stat-label">Ventas del Mes</div>
+                            <div class="stat-trend trend-up">
+                                <span>↑</span>
+                                <span>8% vs mes anterior</span>
+                            </div>
+                        </div>
+                        <div class="stat-icon icon-sales"></div>
+                    </div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-header">
+                        <div>
+                            <div class="stat-value">89</div>
+                            <div class="stat-label">Productos Vendidos Hoy</div>
+                            <div class="stat-trend trend-down">
+                                <span>↓</span>
+                                <span>3% vs ayer</span>
+                            </div>
+                        </div>
+                        <div class="stat-icon icon-cart"></div>
+                    </div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-header">
+                        <div>
+                            <div class="stat-value">15</div>
+                            <div class="stat-label">Alertas de Stock Bajo</div>
+                            <div class="stat-trend">
+                                <span style="color: var(--warning);">⚠️</span>
+                                <span style="color: var(--warning);">Requiere atención</span>
+                            </div>
+                        </div>
+                        <div class="stat-icon" style="background: var(--warning); color: var(--color1);">!</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Charts -->
+            <div class="charts-grid">
+                <div class="chart-card">
+                    <div class="chart-header">
+                        <h3 class="chart-title">Ventas Mensuales</h3>
+                        <select style="background: var(--color3); color: var(--text-light); border: none; padding: 8px 15px; border-radius: 6px;">
+                            <option>Últimos 6 meses</option>
+                            <option>Último año</option>
+                            <option>Todo el tiempo</option>
+                        </select>
+                    </div>
+                    <div class="chart-placeholder">
+                        <span>Gráfico de Ventas (Por implementar)</span>
+                    </div>
+                </div>
+
+                <div class="chart-card">
+                    <div class="chart-header">
+                        <h3 class="chart-title">Productos Más Vendidos</h3>
+                        <button class="header-btn">Ver todos</button>
+                    </div>
+                    <div class="chart-placeholder">
+                        <span>Top 10 Productos (Por implementar)</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Recent Activity -->
+            <div class="activity-card">
+                <div class="activity-header">
+                    <h3 class="chart-title">Actividad Reciente</h3>
+                    <button class="header-btn">Ver todo</button>
+                </div>
+                <div class="activity-list">
+                    <div class="activity-item">
+                        <div class="activity-icon icon-sales"></div>
+                        <div class="activity-details">
+                            <div class="activity-title">Nueva venta registrada</div>
+                            <div class="activity-time">Hace 5 minutos</div>
+                        </div>
+                        <div style="color: var(--success); font-weight: 600;">+$125.00</div>
+                    </div>
+
+                    <div class="activity-item">
+                        <div class="activity-icon icon-inventory"></div>
+                        <div class="activity-details">
+                            <div class="activity-title">Stock actualizado: Paracetamol 500mg</div>
+                            <div class="activity-time">Hace 15 minutos</div>
+                        </div>
+                        <div style="color: var(--text-muted);">+50 unidades</div>
+                    </div>
+
+                    <div class="activity-item">
+                        <div class="activity-icon" style="background: var(--warning); color: var(--color1);">!</div>
+                        <div class="activity-details">
+                            <div class="activity-title">Stock bajo: Ibuprofeno 400mg</div>
+                            <div class="activity-time">Hace 1 hora</div>
+                        </div>
+                        <div style="color: var(--warning);">10 unidades</div>
+                    </div>
+
+                    <div class="activity-item">
+                        <div class="activity-icon icon-ai"></div>
+                        <div class="activity-details">
+                            <div class="activity-title">Predicción IA: Aumento de demanda esperado</div>
+                            <div class="activity-time">Hace 2 horas</div>
+                        </div>
+                        <div style="color: var(--color5);">Ver detalles</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+</body>
+</html>
