@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Inventario - Sistema de Gestión Clínica</title>
+    <link rel="stylesheet" href="/css/styles.css">
+    <style>
+        /* Estilos específicos para la página de inventario */
+        .page-content {
+            padding: 40px;
+            background: var(--color1);
+            min-height: calc(100vh - 80px);
+        }
+
+        /* Grid de estadísticas */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 25px;
+            margin-bottom: 40px;
+        }
+
+        .stat-card {
+            background: var(--color2);
+            padding: 25px;
+            border-radius: var(--border-radius-lg);
+            box-shadow: var(--shadow-md);
+            transition: var(--transition);
+            border: 1px solid transparent;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--shadow-lg);
+            border-color: var(--color4);
+        }
+
+        .stat-icon {
+            width: 50px;
+            height: 50px;
+            background: var(--color3);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            margin-bottom: 15px;
+        }
+
+        .stat-value {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--text-light);
+            margin-bottom: 5px;
+        }
+
+        .stat-label {
+            color: var(--text-muted);
+            font-size: 0.9rem;
+        }
+
+        /* Sección de filtros */
+        .filters-section {
+            background: var(--color2);
+            padding: 25px;
+            border-radius: var(--border-radius-lg);
+            margin-bottom: 30px;
+            box-shadow: var(--shadow-md);
+        }
+
+        .filters-grid {
+            display: grid;
+            grid-template-columns: 2fr 1fr 1fr auto;
+            gap: 20px;
+            align-items: end;
+        }
+
+        /* Tabla mejorada */
+        .table-section {
+            background: var(--color2);
+            padding: 25px;
+            border-radius: var(--border-radius-lg);
+            box-shadow: var(--shadow-md);
+        }
+
+        .table-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .table-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        /* Alertas */
+        .alert {
+            padding: 15px 20px;
+            border-radius: var(--border-radius-sm);
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .alert-warning {
+            background: rgba(255, 152, 0, 0.1);
+            border: 1px solid var(--warning);
+            color: var(--warning);
+        }
+
+        /* Iconos */
+        .icon-inventory::before { content: "📦"; }
+        .icon-units::before { content: "📊"; }
+        .icon-money::before { content: "💰"; }
+        .icon-alert::before { content: "⚠️"; }
+        .icon-export::before { content: "📤"; }
+        .icon-print::before { content: "🖨️"; }
+        .icon-refresh::before { content: "🔄"; }
+
+        /* Responsive */
+        @media (max-width: 1024px) {
+            .filters-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .page-content {
+                padding: 20px;
+            }
+
+            .filters-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .table-header {
+                flex-direction: column;
+                gap: 15px;
+                align-items: stretch;
+            }
+
+            .table-actions {
+                justify-content: center;
+            }
+        }
+
+        /* Animación de carga */
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid var(--color3);
+            border-radius: 50%;
+            border-top-color: var(--accent);
+            animation: spin 1s ease-in-out infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <div class="main-layout">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="logo">
+                <div class="logo-icon">CI</div>
+                <div class="logo-text">
+                    <h2>Clínica Inventario</h2>
+                    <p>Sistema de Gestión</p>
+                </div>
+            </div>
+
+            <nav class="nav-menu">
+                <a href="dashboard.html" class="nav-item">
+                    <span class="nav-icon">📊</span>
+                    <span>Dashboard</span>
+                </a>
+                <a href="inventario.html" class="nav-item active">
+                    <span class="nav-icon icon-inventory"></span>
+                    <span>Inventario</span>
+                </a>
+                <a href="ventas.html" class="nav-item">
+                    <span class="nav-icon">💰</span>
+                    <span>Ventas</span>
+                </a>
+                <a href="carrito.html" class="nav-item">
+                    <span class="nav-icon">🛒</span>
+                    <span>Carrito</span>
+                </a>
+                <a href="#" class="nav-item">
+                    <span class="nav-icon">🤖</span>
+                    <span>Asistente IA</span>
+                </a>
+                <a href="#" class="nav-item">
+                    <span class="nav-icon">⚙️</span>
+                    <span>Configuración</span>
+                </a>
+                <a href="login.html" class="nav-item">
+                    <span class="nav-icon">🚪</span>
+                    <span>Cerrar Sesión</span>
+                </a>
+            </nav>
+
+            <div class="user-profile" style="margin-top: auto; display: flex; align-items: center; gap: 15px; padding: 20px; background: var(--color3); border-radius: 12px;">
+                <div class="user-avatar" style="width: 45px; height: 45px; background: var(--color5); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold;">U</div>
+                <div>
+                    <div style="font-weight: 600;">Usuario</div>
+                    <div style="font-size: 0.85rem; color: var(--text-muted);">Administrador</div>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Contenido Principal -->
+        <main class="main-content">
+            <!-- Header -->
+            <header class="header">
+                <div class="header-left">
+                    <h1>Inventario de Medicamentos</h1>
+                    <p>Gestión y control del stock de medicamentos</p>
+                </div>
+                <div class="header-actions">
+                    <button class="btn" onclick="location.reload()">
+                        <span class="icon-refresh"></span>
+                        <span>Actualizar</span>
+                    </button>
+                    <button class="btn btn-primary">
+                        <span>+ Nuevo Medicamento</span>
+                    </button>
+                </div>
+            </header>
+
+            <!-- Contenido de la página -->
+            <div class="page-content">
+                <!-- Estadísticas -->
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-icon icon-inventory"></div>
+                        <div class="stat-value" id="totalProductos">0</div>
+                        <div class="stat-label">Total de Productos</div>
+                    </div>
+
+                    <div class="stat-card">
+                        <div class="stat-icon icon-units"></div>
+                        <div class="stat-value" id="totalUnidades">0</div>
+                        <div class="stat-label">Unidades en Stock</div>
+                    </div>
+
+                    <div class="stat-card">
+                        <div class="stat-icon icon-money"></div>
+                        <div class="stat-value" id="valorTotal">S/0.00</div>
+                        <div class="stat-label">Valor del Inventario</div>
+                    </div>
+
+                    <div class="stat-card">
+                        <div class="stat-icon icon-alert" style="background: var(--warning); color: var(--color1);"></div>
+                        <div class="stat-value" id="stockBajo">0</div>
+                        <div class="stat-label">Productos con Stock Bajo</div>
+                    </div>
+                </div>
+
+                <!-- Alerta de stock bajo -->
+                <div class="alert alert-warning" id="alertStockBajo" style="display: none;">
+                    <span class="icon-alert"></span>
+                    <span>Hay productos con stock bajo que requieren atención</span>
+                </div>
+
+                <!-- Filtros -->
+                <div class="filters-section">
+                    <h3 class="mb-3">Filtros de Búsqueda</h3>
+                    <div class="filters-grid">
+                        <div class="form-group">
+                            <label class="form-label" for="searchInput">Buscar medicamento</label>
+                            <input type="text" id="searchInput" class="form-control" placeholder="Nombre, categoría o descripción...">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label class="form-label" for="filterCategory">Categoría</label>
+                            <select id="filterCategory" class="form-control">
+                                <option value="">Todas las categorías</option>
+                            </select>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label class="form-label" for="filterStock">Estado de Stock</label>
+                            <select id="filterStock" class="form-control">
+                                <option value="">Todos</option>
+                                <option value="bajo">Stock Bajo (< 20)</option>
+                                <option value="normal">Stock Normal (20-50)</option>
+                                <option value="alto">Stock Alto (> 50)</option>
+                            </select>
+                        </div>
+                        
+                        <button class="btn btn-primary" style="height: fit-content;">
+                            Aplicar Filtros
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Tabla de medicamentos -->
+                <div class="table-section">
+                    <div class="table-header">
+                        <h3>Lista de Medicamentos</h3>
+                        <div class="table-actions">
+                            <button class="btn" onclick="exportarCSV()">
+                                <span class="icon-export"></span>
+                                <span>Exportar</span>
+                            </button>
+                            <button class="btn" onclick="imprimirInventario()">
+                                <span class="icon-print"></span>
+                                <span>Imprimir</span>
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="table-container">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Nombre</th>
+                                    <th>Categoría</th>
+                                    <th>Descripción</th>
+                                    <th>Stock</th>
+                                    <th>Precio</th>
+                                    <th>Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody id="medicamentosTableBody">
+                                <tr>
+                                    <td colspan="7" class="text-center p-4">
+                                        <div class="loading"></div>
+                                        <p class="mt-2">Cargando medicamentos...</p>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Scripts -->
+    <script src="/js/inventario.js"></script>
+</body>
+</html>
