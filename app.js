@@ -21,15 +21,22 @@ app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, 'index.html'));
 });
 
+// Ruta para la página de ventas
+app.get('/ventas', (req, res) => {
+    res.sendFile(path.join(__dirname, 'views', 'ventas.html'));
+});
+
 // Importar rutas
 const authRoutes = require('./routes/authRoutes');
 const inventarioRoutes = require('./routes/inventarioRoutes');
 const iaRoutes = require('./routes/iaRoutes');
+const ventasRoutes = require('./routes/ventasRoutes');
 
 // Usar rutas
 app.use('/api/auth', authRoutes);
 app.use('/api/inventario', inventarioRoutes);
 app.use('/api/ia', iaRoutes);
+app.use('/api/ventas', ventasRoutes);
 
 // Manejo de errores
 app.use((err, req, res, next) => {
