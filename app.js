@@ -23,9 +23,11 @@ app.get('/', (req, res) => {
 
 // Importar rutas
 const authRoutes = require('./routes/authRoutes');
+const inventarioRoutes = require('./routes/inventarioRoutes');
 
 // Usar rutas
 app.use('/api/auth', authRoutes);
+app.use('/api/inventario', inventarioRoutes);
 
 // Manejo de errores
 app.use((err, req, res, next) => {
