@@ -65,6 +65,9 @@ function renderizarTabla() {
                 <button class="btn btn-sm" onclick="verDetalles(${medicamento.id})" title="Ver detalles">
                     👁️
                 </button>
+                <button class="btn btn-sm btn-primary" onclick="agregarAlCarrito(${medicamento.id})" title="Agregar al carrito">
+                    🛒
+                </button>
             </td>
         `;
         medicamentosTableBody.appendChild(row);
@@ -204,4 +207,75 @@ function exportarCSV() {
 // Función para imprimir inventario (futura implementación)
 function imprimirInventario() {
     window.print();
+}
+
+// Función para agregar producto al carrito
+function agregarAlCarrito(productoId) {
+    const medicamento = medicamentos.find(m => m.id === productoId);
+    if (!medicamento) {
+        mostrarError('Medicamento no encontrado');
+        return;
+    }
+
+    if (medicamento.stock <= 0) {
+        mostrarError('Producto sin stock disponible');
+        return;
+    }
+
+    // Obtener carrito actual del localStorage
+    let carrito = [];
+    const carritoGuardado = localStorage.getItem('carrito');
+    if (carritoGuardado) {
+        carrito = JSON.parse(carritoGuardado);
+    }
+
+    // Verificar si el producto ya está en el carrito
+    const itemExistente = carrito.find(item => item.id === productoId);
+    
+    if (itemExistente) {
+        if (itemExistente.cantidad >= medicamento.stock) {
+            mostrarError(`No se puede agregar más. Stock máximo: ${medicamento.stock}`);
+            return;
+        }
+        itemExistente.cantidad += 1;
+    } else {
+        carrito.push({
+            id: medicamento.id,
+            nombre: medicamento.nombre,
+            categoria: medicamento.categoria,
+            precio: parseFloat(medicamento.precio),
+            cantidad: 1,
+            stock: medicamento.stock
+        });
+    }
+
+    // Guardar carrito actualizado
+    localStorage.setItem('carrito', JSON.stringify(carrito));
+    
+    // Mostrar mensaje de éxito
+    mostrarExito(`${medicamento.nombre} agregado al carrito`);
+}
+
+// Función para mostrar mensajes de éxito
+function mostrarExito(mensaje) {
+    const alertDiv = document.createElement('div');
+    alertDiv.className = 'alert alert-success';
+    alertDiv.textContent = mensaje;
+    alertDiv.style.cssText = `
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        padding: 15px 25px;
+        background: var(--success);
+        color: white;
+        border-radius: 8px;
+        box-shadow: var(--shadow-lg);
+        z-index: 1000;
+    `;
+    
+    document.body.appendChild(alertDiv);
+    
+    setTimeout(() => {
+        alertDiv.remove();
+    }, 3000);
 }

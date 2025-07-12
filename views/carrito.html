@@ -1,0 +1,603 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Carrito de Compras - Sistema de Gestión Clínica</title>
+    <link rel="stylesheet" href="/css/styles.css">
+    <style>
+        /* Estilos específicos para el carrito */
+        .carrito-container {
+            padding: 40px;
+            background: var(--color1);
+            min-height: calc(100vh - 80px);
+        }
+
+        .carrito-grid {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 30px;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        /* Panel principal del carrito */
+        .carrito-main {
+            background: var(--color2);
+            border-radius: var(--border-radius-lg);
+            box-shadow: var(--shadow-md);
+            overflow: hidden;
+        }
+
+        .carrito-header {
+            padding: 25px;
+            border-bottom: 1px solid var(--color3);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .carrito-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: var(--text-light);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .carrito-contador {
+            background: var(--accent);
+            color: white;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            font-weight: 600;
+        }
+
+        /* Lista de productos en el carrito */
+        .carrito-items {
+            padding: 25px;
+            max-height: 500px;
+            overflow-y: auto;
+        }
+
+        .carrito-item {
+            display: grid;
+            grid-template-columns: 80px 1fr auto auto auto;
+            gap: 20px;
+            align-items: center;
+            padding: 20px;
+            background: var(--color3);
+            border-radius: var(--border-radius);
+            margin-bottom: 15px;
+            transition: var(--transition);
+        }
+
+        .carrito-item:hover {
+            background: var(--color4);
+            transform: translateX(5px);
+        }
+
+        .item-imagen {
+            width: 60px;
+            height: 60px;
+            background: var(--color4);
+            border-radius: var(--border-radius-sm);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+        }
+
+        .item-info {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+
+        .item-nombre {
+            font-weight: 600;
+            color: var(--text-light);
+            font-size: 1.1rem;
+        }
+
+        .item-categoria {
+            font-size: 0.9rem;
+            color: var(--text-muted);
+        }
+
+        .item-precio {
+            font-weight: 600;
+            color: var(--accent);
+        }
+
+        /* Controles de cantidad */
+        .cantidad-controls {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            background: var(--color4);
+            border-radius: var(--border-radius-sm);
+            padding: 5px;
+        }
+
+        .cantidad-btn {
+            width: 30px;
+            height: 30px;
+            background: var(--color5);
+            border: none;
+            border-radius: 4px;
+            color: var(--text-light);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            transition: var(--transition);
+        }
+
+        .cantidad-btn:hover {
+            background: var(--accent);
+        }
+
+        .cantidad-input {
+            width: 50px;
+            text-align: center;
+            background: transparent;
+            border: none;
+            color: var(--text-light);
+            font-weight: 600;
+        }
+
+        .item-subtotal {
+            font-weight: 700;
+            color: var(--text-light);
+            font-size: 1.1rem;
+        }
+
+        .item-eliminar {
+            background: var(--danger);
+            border: none;
+            border-radius: 50%;
+            width: 35px;
+            height: 35px;
+            color: white;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: var(--transition);
+        }
+
+        .item-eliminar:hover {
+            background: #d32f2f;
+            transform: scale(1.1);
+        }
+
+        /* Panel lateral - Resumen */
+        .carrito-sidebar {
+            display: flex;
+            flex-direction: column;
+            gap: 25px;
+        }
+
+        .resumen-card {
+            background: var(--color2);
+            padding: 25px;
+            border-radius: var(--border-radius-lg);
+            box-shadow: var(--shadow-md);
+        }
+
+        .resumen-title {
+            font-size: 1.3rem;
+            font-weight: 600;
+            color: var(--text-light);
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .resumen-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 0;
+            border-bottom: 1px solid var(--color3);
+        }
+
+        .resumen-item:last-child {
+            border-bottom: none;
+            font-weight: 700;
+            font-size: 1.2rem;
+            color: var(--accent);
+            margin-top: 10px;
+            padding-top: 20px;
+            border-top: 2px solid var(--color3);
+        }
+
+        .resumen-label {
+            color: var(--text-muted);
+        }
+
+        .resumen-valor {
+            color: var(--text-light);
+            font-weight: 600;
+        }
+
+        /* Botones de acción */
+        .acciones-card {
+            background: var(--color2);
+            padding: 25px;
+            border-radius: var(--border-radius-lg);
+            box-shadow: var(--shadow-md);
+        }
+
+        .btn-procesar {
+            width: 100%;
+            padding: 15px;
+            background: var(--accent);
+            border: none;
+            border-radius: var(--border-radius);
+            color: white;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .btn-procesar:hover {
+            background: var(--accent-hover);
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .btn-procesar:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .btn-limpiar {
+            width: 100%;
+            padding: 12px;
+            background: transparent;
+            border: 2px solid var(--color4);
+            border-radius: var(--border-radius);
+            color: var(--text-muted);
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .btn-limpiar:hover {
+            border-color: var(--danger);
+            color: var(--danger);
+        }
+
+        /* Estado vacío */
+        .carrito-vacio {
+            text-align: center;
+            padding: 60px 40px;
+            color: var(--text-muted);
+        }
+
+        .carrito-vacio-icon {
+            font-size: 80px;
+            margin-bottom: 20px;
+        }
+
+        .carrito-vacio h3 {
+            color: var(--text-light);
+            margin-bottom: 15px;
+        }
+
+        .carrito-vacio p {
+            margin-bottom: 30px;
+        }
+
+        /* Buscador de productos */
+        .buscar-productos {
+            background: var(--color2);
+            padding: 25px;
+            border-radius: var(--border-radius-lg);
+            box-shadow: var(--shadow-md);
+            margin-bottom: 30px;
+        }
+
+        .buscar-input {
+            width: 100%;
+            padding: 15px;
+            background: var(--color3);
+            border: 1px solid var(--color4);
+            border-radius: var(--border-radius);
+            color: var(--text-light);
+            font-size: 1rem;
+            margin-bottom: 15px;
+        }
+
+        .buscar-input:focus {
+            outline: none;
+            background: var(--color4);
+            border-color: var(--color5);
+        }
+
+        .productos-sugeridos {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 15px;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+
+        .producto-sugerido {
+            background: var(--color3);
+            padding: 15px;
+            border-radius: var(--border-radius);
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .producto-sugerido:hover {
+            background: var(--color4);
+            transform: translateY(-2px);
+        }
+
+        .producto-nombre {
+            font-weight: 600;
+            color: var(--text-light);
+            margin-bottom: 5px;
+        }
+
+        .producto-precio {
+            color: var(--accent);
+            font-weight: 600;
+        }
+
+        .producto-stock {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+        }
+
+        /* Responsive */
+        @media (max-width: 1024px) {
+            .carrito-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .carrito-container {
+                padding: 20px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .carrito-item {
+                grid-template-columns: 1fr;
+                text-align: center;
+                gap: 15px;
+            }
+
+            .productos-sugeridos {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Animaciones */
+        .fade-in {
+            animation: fadeIn 0.3s ease-out;
+        }
+
+        .slide-out {
+            animation: slideOut 0.3s ease-out forwards;
+        }
+
+        @keyframes slideOut {
+            to {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+        }
+
+        /* Loading */
+        .loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(6, 6, 6, 0.8);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+
+        .loading-spinner {
+            width: 50px;
+            height: 50px;
+            border: 4px solid var(--color3);
+            border-top: 4px solid var(--accent);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <div class="main-layout">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="logo">
+                <div class="logo-icon">CI</div>
+                <div class="logo-text">
+                    <h2>Clínica Inventario</h2>
+                    <p>Sistema de Gestión</p>
+                </div>
+            </div>
+
+            <nav class="nav-menu">
+                <a href="dashboard.html" class="nav-item">
+                    <span class="nav-icon">📊</span>
+                    <span>Dashboard</span>
+                </a>
+                <a href="inventario.html" class="nav-item">
+                    <span class="nav-icon">📦</span>
+                    <span>Inventario</span>
+                </a>
+                <a href="ventas.html" class="nav-item">
+                    <span class="nav-icon">💰</span>
+                    <span>Ventas</span>
+                </a>
+                <a href="carrito.html" class="nav-item active">
+                    <span class="nav-icon">🛒</span>
+                    <span>Carrito</span>
+                </a>
+                <a href="asistente-ia.html" class="nav-item">
+                    <span class="nav-icon">🤖</span>
+                    <span>Asistente IA</span>
+                </a>
+                <a href="#" class="nav-item">
+                    <span class="nav-icon">⚙️</span>
+                    <span>Configuración</span>
+                </a>
+                <a href="login.html" class="nav-item">
+                    <span class="nav-icon">🚪</span>
+                    <span>Cerrar Sesión</span>
+                </a>
+            </nav>
+
+            <div class="user-profile" style="margin-top: auto; display: flex; align-items: center; gap: 15px; padding: 20px; background: var(--color3); border-radius: 12px;">
+                <div class="user-avatar" style="width: 45px; height: 45px; background: var(--color5); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold;">U</div>
+                <div>
+                    <div style="font-weight: 600;">Usuario</div>
+                    <div style="font-size: 0.85rem; color: var(--text-muted);">Administrador</div>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Contenido Principal -->
+        <main class="main-content">
+            <!-- Header -->
+            <header class="header">
+                <div class="header-left">
+                    <h1>Carrito de Compras</h1>
+                    <p>Gestión de productos para venta</p>
+                </div>
+                <div class="header-actions">
+                    <button class="btn" onclick="mostrarBuscador()">
+                        <span>🔍</span>
+                        <span>Buscar Productos</span>
+                    </button>
+                    <button class="btn btn-primary" onclick="irAInventario()">
+                        <span>📦</span>
+                        <span>Ver Inventario</span>
+                    </button>
+                </div>
+            </header>
+
+            <!-- Contenido del Carrito -->
+            <div class="carrito-container">
+                <!-- Buscador de productos (inicialmente oculto) -->
+                <div class="buscar-productos" id="buscadorProductos" style="display: none;">
+                    <h3 style="margin-bottom: 15px; color: var(--text-light);">🔍 Buscar Productos</h3>
+                    <input type="text" class="buscar-input" id="buscarInput" placeholder="Buscar medicamentos por nombre o categoría...">
+                    <div class="productos-sugeridos" id="productosSugeridos">
+                        <!-- Los productos se cargarán aquí dinámicamente -->
+                    </div>
+                </div>
+
+                <div class="carrito-grid">
+                    <!-- Panel Principal del Carrito -->
+                    <div class="carrito-main">
+                        <div class="carrito-header">
+                            <div class="carrito-title">
+                                🛒 Mi Carrito
+                                <span class="carrito-contador" id="contadorItems">0 items</span>
+                            </div>
+                            <button class="btn btn-danger" onclick="limpiarCarrito()" id="btnLimpiar" style="display: none;">
+                                🗑️ Limpiar Todo
+                            </button>
+                        </div>
+
+                        <div class="carrito-items" id="carritoItems">
+                            <!-- Estado inicial vacío -->
+                            <div class="carrito-vacio" id="carritoVacio">
+                                <div class="carrito-vacio-icon">🛒</div>
+                                <h3>Tu carrito está vacío</h3>
+                                <p>Agrega productos desde el inventario para comenzar una venta</p>
+                                <button class="btn btn-primary" onclick="irAInventario()">
+                                    📦 Explorar Inventario
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Panel Lateral - Resumen -->
+                    <div class="carrito-sidebar">
+                        <!-- Resumen de la compra -->
+                        <div class="resumen-card">
+                            <div class="resumen-title">
+                                📋 Resumen de Compra
+                            </div>
+                            <div class="resumen-item">
+                                <span class="resumen-label">Subtotal:</span>
+                                <span class="resumen-valor" id="subtotal">$0.00</span>
+                            </div>
+                            <div class="resumen-item">
+                                <span class="resumen-label">Descuento:</span>
+                                <span class="resumen-valor" id="descuento">$0.00</span>
+                            </div>
+                            <div class="resumen-item">
+                                <span class="resumen-label">Total:</span>
+                                <span class="resumen-valor" id="total">$0.00</span>
+                            </div>
+                        </div>
+
+                        <!-- Acciones -->
+                        <div class="acciones-card">
+                            <button class="btn-procesar" id="btnProcesar" onclick="procesarVenta()" disabled>
+                                💳 Procesar Venta
+                                <span id="totalProcesar">$0.00</span>
+                            </button>
+                            <button class="btn-limpiar" onclick="limpiarCarrito()">
+                                🗑️ Limpiar Carrito
+                            </button>
+                        </div>
+
+                        <!-- Información adicional -->
+                        <div class="resumen-card">
+                            <div class="resumen-title">
+                                ℹ️ Información
+                            </div>
+                            <div style="color: var(--text-muted); font-size: 0.9rem; line-height: 1.5;">
+                                <p>• Los precios incluyen todos los impuestos</p>
+                                <p>• Stock verificado en tiempo real</p>
+                                <p>• Venta procesada inmediatamente</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Loading Overlay -->
+    <div class="loading-overlay" id="loadingOverlay" style="display: none;">
+        <div style="text-align: center; color: var(--text-light);">
+            <div class="loading-spinner"></div>
+            <p style="margin-top: 20px;">Procesando venta...</p>
+        </div>
+    </div>
+
+    <!-- Script del Carrito -->
+    <script src="/js/carrito.js"></script>
+</body>
+</html>
