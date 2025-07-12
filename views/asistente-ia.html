@@ -1,0 +1,627 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Asistente IA - Sistema de Gestión Clínica</title>
+    <link rel="stylesheet" href="/css/styles.css">
+    <style>
+        /* Estilos específicos para el asistente IA */
+        .chat-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 40px;
+            display: grid;
+            grid-template-columns: 1fr 350px;
+            gap: 30px;
+        }
+
+        /* Panel principal del chat */
+        .chat-main {
+            background: var(--color2);
+            border-radius: var(--border-radius-lg);
+            box-shadow: var(--shadow-md);
+            display: flex;
+            flex-direction: column;
+            height: calc(100vh - 200px);
+        }
+
+        .chat-header {
+            padding: 25px;
+            border-bottom: 1px solid var(--color3);
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .ai-avatar {
+            width: 50px;
+            height: 50px;
+            background: linear-gradient(135deg, var(--color4), var(--color5));
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+        }
+
+        .chat-messages {
+            flex: 1;
+            padding: 25px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .message {
+            display: flex;
+            gap: 15px;
+            animation: fadeIn 0.3s ease-out;
+        }
+
+        .message-avatar {
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+            flex-shrink: 0;
+        }
+
+        .message.user .message-avatar {
+            background: var(--accent);
+        }
+
+        .message.ai .message-avatar {
+            background: linear-gradient(135deg, var(--color4), var(--color5));
+        }
+
+        .message-content {
+            flex: 1;
+            background: var(--color3);
+            padding: 15px 20px;
+            border-radius: var(--border-radius);
+            position: relative;
+        }
+
+        .message.user .message-content {
+            background: var(--accent);
+            margin-left: auto;
+            max-width: 70%;
+        }
+
+        .message.ai .message-content {
+            max-width: 80%;
+        }
+
+        .message-time {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            margin-top: 5px;
+        }
+
+        /* Input area */
+        .chat-input-area {
+            padding: 20px;
+            border-top: 1px solid var(--color3);
+            display: flex;
+            gap: 15px;
+        }
+
+        .chat-input {
+            flex: 1;
+            padding: 15px;
+            background: var(--color3);
+            border: 1px solid var(--color4);
+            border-radius: var(--border-radius);
+            color: var(--text-light);
+            font-size: 1rem;
+            resize: none;
+            min-height: 50px;
+            max-height: 150px;
+        }
+
+        .chat-input:focus {
+            outline: none;
+            background: var(--color4);
+            border-color: var(--color5);
+        }
+
+        .send-button {
+            padding: 15px 25px;
+            background: var(--accent);
+            border: none;
+            border-radius: var(--border-radius);
+            color: white;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-weight: 600;
+            transition: var(--transition);
+        }
+
+        .send-button:hover {
+            background: var(--accent-hover);
+            transform: translateY(-2px);
+        }
+
+        .send-button:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        /* Panel lateral */
+        .chat-sidebar {
+            display: flex;
+            flex-direction: column;
+            gap: 25px;
+        }
+
+        .suggestions-card {
+            background: var(--color2);
+            padding: 25px;
+            border-radius: var(--border-radius-lg);
+            box-shadow: var(--shadow-md);
+        }
+
+        .suggestions-card h3 {
+            margin-bottom: 15px;
+            color: var(--text-light);
+        }
+
+        .suggestion-item {
+            padding: 12px 15px;
+            background: var(--color3);
+            border-radius: var(--border-radius-sm);
+            margin-bottom: 10px;
+            cursor: pointer;
+            transition: var(--transition);
+            font-size: 0.9rem;
+        }
+
+        .suggestion-item:hover {
+            background: var(--color4);
+            transform: translateX(5px);
+        }
+
+        /* Estado de carga */
+        .typing-indicator {
+            display: flex;
+            gap: 5px;
+            padding: 20px;
+        }
+
+        .typing-dot {
+            width: 8px;
+            height: 8px;
+            background: var(--color5);
+            border-radius: 50%;
+            animation: typing 1.4s infinite;
+        }
+
+        .typing-dot:nth-child(2) {
+            animation-delay: 0.2s;
+        }
+
+        .typing-dot:nth-child(3) {
+            animation-delay: 0.4s;
+        }
+
+        @keyframes typing {
+            0%, 60%, 100% {
+                transform: translateY(0);
+            }
+            30% {
+                transform: translateY(-10px);
+            }
+        }
+
+        /* Info cards */
+        .info-card {
+            background: var(--color2);
+            padding: 20px;
+            border-radius: var(--border-radius-lg);
+            box-shadow: var(--shadow-md);
+            text-align: center;
+        }
+
+        .info-icon {
+            font-size: 48px;
+            margin-bottom: 15px;
+        }
+
+        .info-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+
+        .info-value {
+            font-size: 0.9rem;
+            color: var(--text-muted);
+        }
+
+        /* Responsive */
+        @media (max-width: 1024px) {
+            .chat-container {
+                grid-template-columns: 1fr;
+            }
+
+            .chat-sidebar {
+                display: none;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .chat-container {
+                padding: 20px;
+            }
+
+            .message.user .message-content {
+                max-width: 85%;
+            }
+
+            .message.ai .message-content {
+                max-width: 90%;
+            }
+        }
+
+        /* Mensaje de bienvenida */
+        .welcome-message {
+            text-align: center;
+            padding: 40px;
+            color: var(--text-muted);
+        }
+
+        .welcome-message h2 {
+            color: var(--text-light);
+            margin-bottom: 15px;
+        }
+
+        .welcome-message p {
+            margin-bottom: 30px;
+        }
+
+        .quick-actions {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .quick-action-btn {
+            padding: 10px 20px;
+            background: var(--color3);
+            border: 1px solid var(--color4);
+            border-radius: 20px;
+            color: var(--text-light);
+            cursor: pointer;
+            transition: var(--transition);
+            font-size: 0.9rem;
+        }
+
+        .quick-action-btn:hover {
+            background: var(--color4);
+            border-color: var(--color5);
+            transform: translateY(-2px);
+        }
+    </style>
+</head>
+<body>
+    <div class="main-layout">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="logo">
+                <div class="logo-icon">CI</div>
+                <div class="logo-text">
+                    <h2>Clínica Inventario</h2>
+                    <p>Sistema de Gestión</p>
+                </div>
+            </div>
+
+            <nav class="nav-menu">
+                <a href="dashboard.html" class="nav-item">
+                    <span class="nav-icon">📊</span>
+                    <span>Dashboard</span>
+                </a>
+                <a href="inventario.html" class="nav-item">
+                    <span class="nav-icon">📦</span>
+                    <span>Inventario</span>
+                </a>
+                <a href="ventas.html" class="nav-item">
+                    <span class="nav-icon">💰</span>
+                    <span>Ventas</span>
+                </a>
+                <a href="carrito.html" class="nav-item">
+                    <span class="nav-icon">🛒</span>
+                    <span>Carrito</span>
+                </a>
+                <a href="asistente-ia.html" class="nav-item active">
+                    <span class="nav-icon">🤖</span>
+                    <span>Asistente IA</span>
+                </a>
+                <a href="#" class="nav-item">
+                    <span class="nav-icon">⚙️</span>
+                    <span>Configuración</span>
+                </a>
+                <a href="login.html" class="nav-item">
+                    <span class="nav-icon">🚪</span>
+                    <span>Cerrar Sesión</span>
+                </a>
+            </nav>
+
+            <div class="user-profile" style="margin-top: auto; display: flex; align-items: center; gap: 15px; padding: 20px; background: var(--color3); border-radius: 12px;">
+                <div class="user-avatar" style="width: 45px; height: 45px; background: var(--color5); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold;">U</div>
+                <div>
+                    <div style="font-weight: 600;">Usuario</div>
+                    <div style="font-size: 0.85rem; color: var(--text-muted);">Administrador</div>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Contenido Principal -->
+        <main class="main-content">
+            <!-- Header -->
+            <header class="header">
+                <div class="header-left">
+                    <h1>Asistente IA de Inventario</h1>
+                    <p>Consulta inteligente sobre medicamentos disponibles</p>
+                </div>
+                <div class="header-actions">
+                    <button class="btn" onclick="limpiarChat()">
+                        <span>🗑️</span>
+                        <span>Limpiar Chat</span>
+                    </button>
+                </div>
+            </header>
+
+            <!-- Chat Container -->
+            <div class="chat-container">
+                <!-- Chat Principal -->
+                <div class="chat-main">
+                    <div class="chat-header">
+                        <div class="ai-avatar">🤖</div>
+                        <div>
+                            <h3>Asistente Médico IA</h3>
+                            <p class="text-muted" style="font-size: 0.9rem;">Siempre disponible para ayudarte</p>
+                        </div>
+                    </div>
+
+                    <div class="chat-messages" id="chatMessages">
+                        <!-- Mensaje de bienvenida -->
+                        <div class="welcome-message" id="welcomeMessage">
+                            <h2>¡Hola! Soy tu asistente médico 🏥</h2>
+                            <p>Puedo ayudarte a consultar el inventario de medicamentos de forma natural.</p>
+                            <p>Prueba preguntándome:</p>
+                            <div class="quick-actions">
+                                <button class="quick-action-btn" onclick="enviarPreguntaRapida('¿Qué medicamentos hay para la gripe?')">
+                                    ¿Medicamentos para la gripe?
+                                </button>
+                                <button class="quick-action-btn" onclick="enviarPreguntaRapida('¿Hay amoxicilina disponible?')">
+                                    ¿Hay amoxicilina?
+                                </button>
+                                <button class="quick-action-btn" onclick="enviarPreguntaRapida('¿Qué analgésicos tienen en stock?')">
+                                    Analgésicos en stock
+                                </button>
+                                <button class="quick-action-btn" onclick="enviarPreguntaRapida('Muéstrame medicamentos con stock bajo')">
+                                    Stock bajo
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="chat-input-area">
+                        <textarea 
+                            id="chatInput" 
+                            class="chat-input" 
+                            placeholder="Escribe tu pregunta sobre el inventario..."
+                            onkeypress="handleKeyPress(event)"
+                        ></textarea>
+                        <button id="sendButton" class="send-button" onclick="enviarMensaje()">
+                            <span>Enviar</span>
+                            <span>➤</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Sidebar -->
+                <div class="chat-sidebar">
+                    <!-- Sugerencias -->
+                    <div class="suggestions-card">
+                        <h3>💡 Preguntas Sugeridas</h3>
+                        <div class="suggestion-item" onclick="enviarPreguntaRapida('¿Cuántas unidades de paracetamol hay?')">
+                            ¿Cuántas unidades de paracetamol hay?
+                        </div>
+                        <div class="suggestion-item" onclick="enviarPreguntaRapida('¿Qué antibióticos están disponibles?')">
+                            ¿Qué antibióticos están disponibles?
+                        </div>
+                        <div class="suggestion-item" onclick="enviarPreguntaRapida('¿Hay medicamentos para dolor de cabeza?')">
+                            ¿Medicamentos para dolor de cabeza?
+                        </div>
+                        <div class="suggestion-item" onclick="enviarPreguntaRapida('Lista todos los analgésicos')">
+                            Lista todos los analgésicos
+                        </div>
+                    </div>
+
+                    <!-- Estadísticas -->
+                    <div class="info-card">
+                        <div class="info-icon">📊</div>
+                        <div class="info-title">Consultas Hoy</div>
+                        <div class="info-value" id="consultasHoy">0</div>
+                    </div>
+
+                    <div class="info-card">
+                        <div class="info-icon">⚡</div>
+                        <div class="info-title">Tiempo de Respuesta</div>
+                        <div class="info-value">~2 segundos</div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Script para manejar el chat -->
+    <script>
+        let consultasRealizadas = 0;
+
+        // Función para enviar mensaje
+        async function enviarMensaje() {
+            const input = document.getElementById('chatInput');
+            const mensaje = input.value.trim();
+            
+            if (!mensaje) return;
+
+            // Ocultar mensaje de bienvenida
+            const welcomeMsg = document.getElementById('welcomeMessage');
+            if (welcomeMsg) {
+                welcomeMsg.style.display = 'none';
+            }
+
+            // Agregar mensaje del usuario
+            agregarMensaje(mensaje, 'user');
+            
+            // Limpiar input y deshabilitar botón
+            input.value = '';
+            const sendButton = document.getElementById('sendButton');
+            sendButton.disabled = true;
+            
+            // Mostrar indicador de escritura
+            mostrarIndicadorEscritura();
+            
+            try {
+                // Enviar a la API
+                const response = await fetch('/api/ia/chat', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ prompt: mensaje })
+                });
+                
+                const data = await response.json();
+                
+                // Remover indicador de escritura
+                removerIndicadorEscritura();
+                
+                if (data.success) {
+                    agregarMensaje(data.respuesta, 'ai');
+                    actualizarContadorConsultas();
+                } else {
+                    agregarMensaje(data.respuesta || 'Lo siento, hubo un error al procesar tu consulta.', 'ai');
+                }
+                
+            } catch (error) {
+                console.error('Error:', error);
+                removerIndicadorEscritura();
+                agregarMensaje('Error de conexión. Por favor, intenta nuevamente.', 'ai');
+            } finally {
+                sendButton.disabled = false;
+                input.focus();
+            }
+        }
+
+        // Función para agregar mensaje al chat
+        function agregarMensaje(texto, tipo) {
+            const chatMessages = document.getElementById('chatMessages');
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message ${tipo} fade-in`;
+            
+            const avatar = tipo === 'user' ? '👤' : '🤖';
+            const hora = new Date().toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' });
+            
+            messageDiv.innerHTML = `
+                <div class="message-avatar">${avatar}</div>
+                <div class="message-content">
+                    <div>${texto}</div>
+                    <div class="message-time">${hora}</div>
+                </div>
+            `;
+            
+            chatMessages.appendChild(messageDiv);
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+
+        // Función para mostrar indicador de escritura
+        function mostrarIndicadorEscritura() {
+            const chatMessages = document.getElementById('chatMessages');
+            const typingDiv = document.createElement('div');
+            typingDiv.id = 'typingIndicator';
+            typingDiv.className = 'message ai';
+            typingDiv.innerHTML = `
+                <div class="message-avatar">🤖</div>
+                <div class="typing-indicator">
+                    <div class="typing-dot"></div>
+                    <div class="typing-dot"></div>
+                    <div class="typing-dot"></div>
+                </div>
+            `;
+            chatMessages.appendChild(typingDiv);
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+
+        // Función para remover indicador de escritura
+        function removerIndicadorEscritura() {
+            const indicator = document.getElementById('typingIndicator');
+            if (indicator) {
+                indicator.remove();
+            }
+        }
+
+        // Función para enviar pregunta rápida
+        function enviarPreguntaRapida(pregunta) {
+            document.getElementById('chatInput').value = pregunta;
+            enviarMensaje();
+        }
+
+        // Función para limpiar chat
+        function limpiarChat() {
+            const chatMessages = document.getElementById('chatMessages');
+            chatMessages.innerHTML = `
+                <div class="welcome-message" id="welcomeMessage">
+                    <h2>¡Hola! Soy tu asistente médico 🏥</h2>
+                    <p>Puedo ayudarte a consultar el inventario de medicamentos de forma natural.</p>
+                    <p>Prueba preguntándome:</p>
+                    <div class="quick-actions">
+                        <button class="quick-action-btn" onclick="enviarPreguntaRapida('¿Qué medicamentos hay para la gripe?')">
+                            ¿Medicamentos para la gripe?
+                        </button>
+                        <button class="quick-action-btn" onclick="enviarPreguntaRapida('¿Hay amoxicilina disponible?')">
+                            ¿Hay amoxicilina?
+                        </button>
+                        <button class="quick-action-btn" onclick="enviarPreguntaRapida('¿Qué analgésicos tienen en stock?')">
+                            Analgésicos en stock
+                        </button>
+                        <button class="quick-action-btn" onclick="enviarPreguntaRapida('Muéstrame medicamentos con stock bajo')">
+                            Stock bajo
+                        </button>
+                    </div>
+                </div>
+            `;
+        }
+
+        // Función para manejar Enter en el textarea
+        function handleKeyPress(event) {
+            if (event.key === 'Enter' && !event.shiftKey) {
+                event.preventDefault();
+                enviarMensaje();
+            }
+        }
+
+        // Actualizar contador de consultas
+        function actualizarContadorConsultas() {
+            consultasRealizadas++;
+            document.getElementById('consultasHoy').textContent = consultasRealizadas;
+        }
+
+        // Auto-resize del textarea
+        document.getElementById('chatInput').addEventListener('input', function() {
+            this.style.height = 'auto';
+            this.style.height = Math.min(this.scrollHeight, 150) + 'px';
+        });
+    </script>
+</body>
+</html>
