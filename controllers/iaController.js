@@ -90,6 +90,61 @@ class IAController {
         }
     }
 
+    // Buscar cliente por DNI o nombre
+    static async buscarCliente(req, res) {
+        try {
+            const { busqueda } = req.body;
+
+            if (!busqueda) {
+                return res.status(400).json({
+                    success: false,
+                    message: 'Debe proporcionar un término de búsqueda'
+                });
+            }
+
+            const resultado = await IAInventarioService.buscarCliente(busqueda);
+
+            res.json(resultado);
+
+        } catch (error) {
+            console.error('Error en búsqueda de cliente:', error);
+            res.status(500).json({
+                success: false,
+                message: 'Error interno del servidor'
+            });
+        }
+    }
+
+    // Obtener estadísticas de ventas
+    static async obtenerEstadisticasVentas(req, res) {
+        try {
+            const resultado = await IAInventarioService.obtenerEstadisticasVentas();
+            res.json(resultado);
+
+        } catch (error) {
+            console.error('Error al obtener estadísticas de ventas:', error);
+            res.status(500).json({
+                success: false,
+                message: 'Error interno del servidor'
+            });
+        }
+    }
+
+    // Analizar inventario
+    static async analizarInventario(req, res) {
+        try {
+            const resultado = await IAInventarioService.analizarInventario();
+            res.json(resultado);
+
+        } catch (error) {
+            console.error('Error al analizar inventario:', error);
+            res.status(500).json({
+                success: false,
+                message: 'Error interno del servidor'
+            });
+        }
+    }
+
     // Obtener estadísticas de uso de IA (para futuro dashboard)
     static async getStats(req, res) {
         try {

@@ -9,12 +9,13 @@ class VentaModel {
 
             // Insertar la venta principal
             const ventaQuery = `
-                INSERT INTO ventas (usuario_id, total, fecha)
-                VALUES ($1, $2, NOW())
+                INSERT INTO ventas (usuario_id, cliente_id, total, fecha)
+                VALUES ($1, $2, $3, NOW())
                 RETURNING id, fecha
             `;
             const ventaResult = await client.query(ventaQuery, [
                 ventaData.usuario_id,
+                ventaData.cliente_id || null,
                 ventaData.total
             ]);
 
@@ -63,11 +64,14 @@ class VentaModel {
         try {
             const query = `
                 SELECT v.*, u.username as usuario_nombre,
+                       c.dni as cliente_dni,
+                       CONCAT(c.nombre, ' ', c.apellido_paterno, ' ', c.apellido_materno) as cliente_nombre,
                        COUNT(vd.id) as total_items
                 FROM ventas v
                 LEFT JOIN usuarios u ON v.usuario_id = u.id
+                LEFT JOIN clientes c ON v.cliente_id = c.id
                 LEFT JOIN detalle_venta vd ON v.id = vd.venta_id
-                GROUP BY v.id, u.username
+                GROUP BY v.id, u.username, c.dni, c.nombre, c.apellido_paterno, c.apellido_materno
                 ORDER BY v.fecha DESC
                 LIMIT $1 OFFSET $2
             `;
@@ -83,9 +87,15 @@ class VentaModel {
     static async getById(id) {
         try {
             const ventaQuery = `
-                SELECT v.*, u.username as usuario_nombre
+                SELECT v.*, u.username as usuario_nombre,
+                       c.dni as cliente_dni,
+                       c.nombre as cliente_nombre,
+                       c.apellido_paterno as cliente_apellido_paterno,
+                       c.apellido_materno as cliente_apellido_materno,
+                       CONCAT(c.nombre, ' ', c.apellido_paterno, ' ', c.apellido_materno) as cliente_nombre_completo
                 FROM ventas v
                 LEFT JOIN usuarios u ON v.usuario_id = u.id
+                LEFT JOIN clientes c ON v.cliente_id = c.id
                 WHERE v.id = $1
             `;
             const ventaResult = await db.query(ventaQuery, [id]);

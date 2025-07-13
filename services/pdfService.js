@@ -275,13 +275,26 @@ class PDFService {
                     
                     <div class="info-section">
                         <h3>👤 Datos del Cliente</h3>
+                        ${ventaData.cliente ? `
+                            <div class="info-item">
+                                <span class="info-label">DNI:</span>
+                                <span class="info-value">${ventaData.cliente.dni || 'No especificado'}</span>
+                            </div>
+                            <div class="info-item">
+                                <span class="info-label">Nombre:</span>
+                                <span class="info-value">${ventaData.cliente.nombre_completo || 
+                                    `${ventaData.cliente.nombre || ''} ${ventaData.cliente.apellido_paterno || ''} ${ventaData.cliente.apellido_materno || ''}`.trim() || 
+                                    'No especificado'}</span>
+                            </div>
+                        ` : `
+                            <div class="info-item">
+                                <span class="info-label">Cliente:</span>
+                                <span class="info-value">Venta sin datos de cliente</span>
+                            </div>
+                        `}
                         <div class="info-item">
                             <span class="info-label">Atendido por:</span>
                             <span class="info-value">${ventaData.usuario_nombre || 'Usuario'}</span>
-                        </div>
-                        <div class="info-item">
-                            <span class="info-label">Tipo:</span>
-                            <span class="info-value">Venta Directa</span>
                         </div>
                         <div class="info-item">
                             <span class="info-label">Método de Pago:</span>
