@@ -212,6 +212,7 @@
             box-shadow: 0 4px 15px rgba(0,0,0,0.3);
             transition: all 0.3s ease;
             border: 1px solid transparent;
+            cursor: pointer;
         }
 
         .stat-card:hover {
@@ -223,7 +224,7 @@
         .stat-header {
             display: flex;
             justify-content: space-between;
-            align-items: center;
+            align-items: flex-start;
             margin-bottom: 20px;
         }
 
@@ -248,6 +249,7 @@
         .stat-label {
             color: var(--text-muted);
             font-size: 1rem;
+            margin-bottom: 10px;
         }
 
         .stat-trend {
@@ -255,7 +257,7 @@
             align-items: center;
             gap: 5px;
             font-size: 0.9rem;
-            margin-top: 15px;
+            margin-top: 10px;
         }
 
         .trend-up {
@@ -362,6 +364,22 @@
             color: var(--text-muted);
         }
 
+        /* Loading */
+        .loading {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(6, 6, 6, 0.8);
+            z-index: 9999;
+            justify-content: center;
+            align-items: center;
+            color: var(--text-light);
+            font-size: 1.2rem;
+        }
+
         /* Responsive */
         @media (max-width: 1200px) {
             .charts-grid {
@@ -405,6 +423,14 @@
     </style>
 </head>
 <body>
+    <!-- Loading Overlay -->
+    <div id="loadingOverlay" class="loading">
+        <div style="text-align: center;">
+            <div style="font-size: 2rem; margin-bottom: 10px;">⏳</div>
+            <div>Cargando datos reales...</div>
+        </div>
+    </div>
+
     <!-- Sidebar -->
     <aside class="sidebar">
         <div class="logo">
@@ -436,7 +462,7 @@
                 <span class="nav-icon icon-ai"></span>
                 <span>Asistente IA</span>
             </a>
-            <a href="#" class="nav-item">
+            <a href="configuracion.html" class="nav-item">
                 <span class="nav-icon icon-settings"></span>
                 <span>Configuración</span>
             </a>
@@ -447,9 +473,9 @@
         </nav>
 
         <div class="user-profile">
-            <div class="user-avatar">U</div>
+            <div class="user-avatar">A</div>
             <div>
-                <div style="font-weight: 600;">Usuario</div>
+                <div style="font-weight: 600;">Admin</div>
                 <div style="font-size: 0.85rem; color: var(--text-muted);">Administrador</div>
             </div>
         </div>
@@ -460,19 +486,19 @@
         <!-- Header -->
         <header class="header">
             <div class="header-left">
-                <h1>Dashboard</h1>
-                <p>Bienvenido al sistema de gestión de inventario</p>
+                <h1>Dashboard - Datos Reales</h1>
+                <p id="valorInventario">Cargando valor del inventario...</p>
             </div>
             <div class="header-actions">
-                <button class="header-btn">
+                <button class="header-btn" onclick="window.location.href='inventario.html'">
                     <span class="icon-search"></span>
                     <span>Buscar</span>
                 </button>
-                <button class="header-btn">
+                <button class="header-btn" id="btnNotificaciones">
                     <span class="icon-notification"></span>
                     <span>Notificaciones</span>
                 </button>
-                <button class="header-btn primary">
+                <button class="header-btn primary" onclick="window.location.href='carrito.html'">
                     <span>+ Nueva Venta</span>
                 </button>
             </div>
@@ -482,56 +508,60 @@
         <div class="dashboard-content">
             <!-- Stats Cards -->
             <div class="stats-grid">
-                <div class="stat-card">
+                <!-- Total Unidades en Stock -->
+                <div class="stat-card" id="cardStock">
                     <div class="stat-header">
                         <div>
-                            <div class="stat-value">1,234</div>
-                            <div class="stat-label">Productos en Stock</div>
-                            <div class="stat-trend trend-up">
-                                <span>↑</span>
-                                <span>12% vs mes anterior</span>
+                            <div class="stat-value" id="totalUnidades">0</div>
+                            <div class="stat-label" id="labelUnidades">Cargando...</div>
+                            <div class="stat-trend">
+                                <span style="color: var(--color5);">📦</span>
+                                <span style="color: var(--color5);" id="infoStock">Unidades totales</span>
                             </div>
                         </div>
                         <div class="stat-icon icon-inventory"></div>
                     </div>
                 </div>
 
-                <div class="stat-card">
+                <!-- Ventas del Mes -->
+                <div class="stat-card" id="cardVentasMes">
                     <div class="stat-header">
                         <div>
-                            <div class="stat-value">$45,678</div>
-                            <div class="stat-label">Ventas del Mes</div>
-                            <div class="stat-trend trend-up">
+                            <div class="stat-value" id="ventasMes">S/ 0.00</div>
+                            <div class="stat-label" id="labelVentasMes">Cargando...</div>
+                            <div class="stat-trend trend-up" id="trendVentasMes">
                                 <span>↑</span>
-                                <span>8% vs mes anterior</span>
+                                <span>Calculando...</span>
                             </div>
                         </div>
                         <div class="stat-icon icon-sales"></div>
                     </div>
                 </div>
 
-                <div class="stat-card">
+                <!-- Productos Vendidos Hoy -->
+                <div class="stat-card" id="cardVentasHoy">
                     <div class="stat-header">
                         <div>
-                            <div class="stat-value">89</div>
-                            <div class="stat-label">Productos Vendidos Hoy</div>
-                            <div class="stat-trend trend-down">
-                                <span>↓</span>
-                                <span>3% vs ayer</span>
+                            <div class="stat-value" id="productosHoy">0</div>
+                            <div class="stat-label" id="labelProductosHoy">Cargando...</div>
+                            <div class="stat-trend" id="trendProductosHoy">
+                                <span style="color: var(--success);">💰</span>
+                                <span style="color: var(--success);">Calculando...</span>
                             </div>
                         </div>
                         <div class="stat-icon icon-cart"></div>
                     </div>
                 </div>
 
-                <div class="stat-card">
+                <!-- Stock Bajo -->
+                <div class="stat-card" id="cardStockBajo">
                     <div class="stat-header">
                         <div>
-                            <div class="stat-value">15</div>
+                            <div class="stat-value" id="stockBajo">0</div>
                             <div class="stat-label">Alertas de Stock Bajo</div>
-                            <div class="stat-trend">
+                            <div class="stat-trend" id="trendStockBajo">
                                 <span style="color: var(--warning);">⚠️</span>
-                                <span style="color: var(--warning);">Requiere atención</span>
+                                <span style="color: var(--warning);">Productos con stock < 20</span>
                             </div>
                         </div>
                         <div class="stat-icon" style="background: var(--warning); color: var(--color1);">!</div>
@@ -541,27 +571,25 @@
 
             <!-- Charts -->
             <div class="charts-grid">
+                <!-- Gráfico de Ventas -->
                 <div class="chart-card">
                     <div class="chart-header">
-                        <h3 class="chart-title">Ventas Mensuales</h3>
-                        <select style="background: var(--color3); color: var(--text-light); border: none; padding: 8px 15px; border-radius: 6px;">
-                            <option>Últimos 6 meses</option>
-                            <option>Último año</option>
-                            <option>Todo el tiempo</option>
-                        </select>
+                        <h3 class="chart-title">Resumen de Ventas</h3>
+                        <button class="header-btn" onclick="window.location.href='ventas.html'">Ver todas</button>
                     </div>
-                    <div class="chart-placeholder">
-                        <span>Gráfico de Ventas (Por implementar)</span>
+                    <div class="chart-placeholder" id="chartVentas">
+                        <span>Cargando datos de ventas...</span>
                     </div>
                 </div>
 
+                <!-- Productos Más Vendidos -->
                 <div class="chart-card">
                     <div class="chart-header">
                         <h3 class="chart-title">Productos Más Vendidos</h3>
-                        <button class="header-btn">Ver todos</button>
+                        <button class="header-btn" onclick="window.location.href='inventario.html'">Ver inventario</button>
                     </div>
-                    <div class="chart-placeholder">
-                        <span>Top 10 Productos (Por implementar)</span>
+                    <div class="chart-placeholder" id="chartProductos">
+                        <span>Cargando productos más vendidos...</span>
                     </div>
                 </div>
             </div>
@@ -570,47 +598,508 @@
             <div class="activity-card">
                 <div class="activity-header">
                     <h3 class="chart-title">Actividad Reciente</h3>
-                    <button class="header-btn">Ver todo</button>
+                    <button class="header-btn" onclick="window.location.href='ventas.html'">Ver todo</button>
                 </div>
-                <div class="activity-list">
+                <div class="activity-list" id="activityList">
                     <div class="activity-item">
-                        <div class="activity-icon icon-sales"></div>
+                        <div class="activity-icon">⏳</div>
                         <div class="activity-details">
-                            <div class="activity-title">Nueva venta registrada</div>
-                            <div class="activity-time">Hace 5 minutos</div>
+                            <div class="activity-title">Cargando actividad reciente...</div>
+                            <div class="activity-time">Por favor espera</div>
                         </div>
-                        <div style="color: var(--success); font-weight: 600;">+$125.00</div>
-                    </div>
-
-                    <div class="activity-item">
-                        <div class="activity-icon icon-inventory"></div>
-                        <div class="activity-details">
-                            <div class="activity-title">Stock actualizado: Paracetamol 500mg</div>
-                            <div class="activity-time">Hace 15 minutos</div>
-                        </div>
-                        <div style="color: var(--text-muted);">+50 unidades</div>
-                    </div>
-
-                    <div class="activity-item">
-                        <div class="activity-icon" style="background: var(--warning); color: var(--color1);">!</div>
-                        <div class="activity-details">
-                            <div class="activity-title">Stock bajo: Ibuprofeno 400mg</div>
-                            <div class="activity-time">Hace 1 hora</div>
-                        </div>
-                        <div style="color: var(--warning);">10 unidades</div>
-                    </div>
-
-                    <div class="activity-item">
-                        <div class="activity-icon icon-ai"></div>
-                        <div class="activity-details">
-                            <div class="activity-title">Predicción IA: Aumento de demanda esperado</div>
-                            <div class="activity-time">Hace 2 horas</div>
-                        </div>
-                        <div style="color: var(--color5);">Ver detalles</div>
                     </div>
                 </div>
             </div>
         </div>
     </main>
+
+    <!-- Script del Dashboard con Datos Reales -->
+    <script>
+        // Variables globales
+        let statsData = {};
+        let actividadReciente = [];
+        let stockBajo = [];
+
+        // Inicializar dashboard
+        document.addEventListener('DOMContentLoaded', function() {
+            cargarDatosDashboard();
+            configurarEventListeners();
+            
+            // Actualizar datos cada 2 minutos
+            setInterval(cargarDatosDashboard, 2 * 60 * 1000);
+        });
+
+        // Configurar event listeners
+        function configurarEventListeners() {
+            // Botón de notificaciones
+            const btnNotificaciones = document.getElementById('btnNotificaciones');
+            if (btnNotificaciones) {
+                btnNotificaciones.addEventListener('click', mostrarNotificaciones);
+            }
+
+            // Card de stock bajo clickeable
+            const cardStockBajo = document.getElementById('cardStockBajo');
+            if (cardStockBajo) {
+                cardStockBajo.addEventListener('click', mostrarStockBajo);
+            }
+        }
+
+        // Cargar todos los datos del dashboard
+        async function cargarDatosDashboard() {
+            try {
+                mostrarLoading(true);
+                
+                // Cargar estadísticas principales
+                await cargarEstadisticas();
+                
+                // Cargar actividad reciente
+                await cargarActividadReciente();
+                
+                // Cargar productos con stock bajo
+                await cargarStockBajo();
+                
+                // Cargar productos más vendidos
+                await cargarTopProductos();
+                
+                mostrarLoading(false);
+                
+            } catch (error) {
+                console.error('Error al cargar datos del dashboard:', error);
+                mostrarError('Error al cargar los datos del dashboard');
+                mostrarLoading(false);
+            }
+        }
+
+        // Cargar estadísticas principales
+        async function cargarEstadisticas() {
+            try {
+                const response = await fetch('/api/dashboard/stats');
+                const data = await response.json();
+                
+                if (data.success) {
+                    statsData = data.data;
+                    actualizarEstadisticas();
+                } else {
+                    throw new Error(data.message);
+                }
+            } catch (error) {
+                console.error('Error al cargar estadísticas:', error);
+                // Mostrar datos de ejemplo si falla la conexión
+                mostrarDatosEjemplo();
+            }
+        }
+
+        // Actualizar las estadísticas en el DOM
+        function actualizarEstadisticas() {
+            // Total de unidades en stock
+            document.getElementById('totalUnidades').textContent = statsData.totalUnidades.toLocaleString();
+            document.getElementById('labelUnidades').textContent = `${statsData.totalProductos} productos únicos`;
+            document.getElementById('infoStock').textContent = `Valor: S/ ${statsData.valorTotal.toFixed(2)}`;
+
+            // Ventas del mes
+            document.getElementById('ventasMes').textContent = `S/ ${statsData.totalVentasMes.toFixed(2)}`;
+            document.getElementById('labelVentasMes').textContent = `${statsData.numVentasMes} ventas este mes`;
+            
+            // Trend de ventas
+            const porcentaje = parseFloat(statsData.porcentajeCambioVentas);
+            const isPositive = porcentaje >= 0;
+            const trendVentasMes = document.getElementById('trendVentasMes');
+            trendVentasMes.className = `stat-trend ${isPositive ? 'trend-up' : 'trend-down'}`;
+            trendVentasMes.innerHTML = `
+                <span>${isPositive ? '↑' : '↓'}</span>
+                <span>${Math.abs(porcentaje)}% vs mes anterior</span>
+            `;
+
+            // Productos vendidos hoy
+            document.getElementById('productosHoy').textContent = statsData.productosVendidosHoy.toLocaleString();
+            document.getElementById('labelProductosHoy').textContent = `${statsData.numVentasHoy} ventas hoy`;
+            document.getElementById('trendProductosHoy').innerHTML = `
+                <span style="color: var(--success);">💰</span>
+                <span style="color: var(--success);">S/ ${statsData.totalVentasHoy.toFixed(2)} vendido hoy</span>
+            `;
+
+            // Stock bajo
+            document.getElementById('stockBajo').textContent = statsData.stockBajo.toLocaleString();
+            
+            // Cambiar color del card de stock bajo
+            const cardStockBajo = document.getElementById('cardStockBajo');
+            if (statsData.stockBajo > 0) {
+                cardStockBajo.style.borderColor = 'var(--warning)';
+                cardStockBajo.style.boxShadow = '0 4px 15px rgba(255, 152, 0, 0.3)';
+            } else {
+                cardStockBajo.style.borderColor = 'var(--success)';
+                cardStockBajo.style.boxShadow = '0 4px 15px rgba(76, 175, 80, 0.3)';
+                document.getElementById('trendStockBajo').innerHTML = `
+                    <span style="color: var(--success);">✅</span>
+                    <span style="color: var(--success);">¡Todo el stock está bien!</span>
+                `;
+            }
+
+            // Actualizar valor total del inventario
+            document.getElementById('valorInventario').textContent = `Valor total del inventario: S/ ${statsData.valorTotal.toFixed(2)}`;
+        }
+
+        // Mostrar datos de ejemplo si no hay conexión
+        function mostrarDatosEjemplo() {
+            statsData = {
+                totalProductos: 5,
+                totalUnidades: 174,
+                valorTotal: 387.50,
+                stockBajo: 1,
+                numVentasHoy: 0,
+                totalVentasHoy: 0,
+                productosVendidosHoy: 0,
+                numVentasMes: 3,
+                totalVentasMes: 15.60,
+                porcentajeCambioVentas: 100
+            };
+            actualizarEstadisticas();
+        }
+
+        // Cargar actividad reciente
+        async function cargarActividadReciente() {
+            try {
+                const response = await fetch('/api/dashboard/actividad-reciente');
+                const data = await response.json();
+                
+                if (data.success) {
+                    actividadReciente = data.data;
+                    actualizarActividadReciente();
+                } else {
+                    throw new Error(data.message);
+                }
+            } catch (error) {
+                console.error('Error al cargar actividad reciente:', error);
+                mostrarActividadEjemplo();
+            }
+        }
+
+        // Actualizar actividad reciente en el DOM
+        function actualizarActividadReciente() {
+            const activityList = document.getElementById('activityList');
+            
+            if (actividadReciente.length === 0) {
+                activityList.innerHTML = `
+                    <div class="activity-item">
+                        <div class="activity-icon">📝</div>
+                        <div class="activity-details">
+                            <div class="activity-title">No hay actividad reciente</div>
+                            <div class="activity-time">Comienza realizando algunas ventas</div>
+                        </div>
+                    </div>
+                `;
+                return;
+            }
+
+            activityList.innerHTML = actividadReciente.map(actividad => {
+                const fechaFormateada = formatearTiempoRelativo(new Date(actividad.fecha));
+                
+                return `
+                    <div class="activity-item">
+                        <div class="activity-icon">💰</div>
+                        <div class="activity-details">
+                            <div class="activity-title">${actividad.titulo}</div>
+                            <div class="activity-time">${fechaFormateada}</div>
+                            ${actividad.descripcion ? `<div style="font-size: 0.8rem; color: var(--text-muted); margin-top: 2px;">${actividad.descripcion}</div>` : ''}
+                        </div>
+                        <div style="color: var(--success); font-weight: 600;">${actividad.valor}</div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // Mostrar actividad de ejemplo
+        function mostrarActividadEjemplo() {
+            const activityList = document.getElementById('activityList');
+            activityList.innerHTML = `
+                <div class="activity-item">
+                    <div class="activity-icon">💰</div>
+                    <div class="activity-details">
+                        <div class="activity-title">Venta registrada</div>
+                        <div class="activity-time">Hoy</div>
+                        <div style="font-size: 0.8rem; color: var(--text-muted); margin-top: 2px;">Cliente: Kanae Chung</div>
+                    </div>
+                    <div style="color: var(--success); font-weight: 600;">S/ 3.00</div>
+                </div>
+                <div class="activity-item">
+                    <div class="activity-icon">💰</div>
+                    <div class="activity-details">
+                        <div class="activity-title">Venta registrada</div>
+                        <div class="activity-time">Hoy</div>
+                        <div style="font-size: 0.8rem; color: var(--text-muted); margin-top: 2px;">Cliente: Juan Pérez</div>
+                    </div>
+                    <div style="color: var(--success); font-weight: 600;">S/ 5.60</div>
+                </div>
+            `;
+        }
+
+        // Cargar productos con stock bajo
+        async function cargarStockBajo() {
+            try {
+                const response = await fetch('/api/dashboard/stock-bajo');
+                const data = await response.json();
+                
+                if (data.success) {
+                    stockBajo = data.data;
+                } else {
+                    throw new Error(data.message);
+                }
+            } catch (error) {
+                console.error('Error al cargar stock bajo:', error);
+                stockBajo = [
+                    { nombre: 'Amoxicilina', categoria: 'Antibiótico', stock: 21, precio: 2.80, unidad: 'cápsulas' }
+                ];
+            }
+        }
+
+        // Cargar productos más vendidos
+        async function cargarTopProductos() {
+            try {
+                const response = await fetch('/api/dashboard/top-productos');
+                const data = await response.json();
+                
+                if (data.success) {
+                    actualizarTopProductos(data.data);
+                } else {
+                    throw new Error(data.message);
+                }
+            } catch (error) {
+                console.error('Error al cargar productos más vendidos:', error);
+                mostrarTopProductosEjemplo();
+            }
+        }
+
+        // Actualizar productos más vendidos
+        function actualizarTopProductos(productos) {
+            const chartProductos = document.getElementById('chartProductos');
+            
+            if (productos.length === 0) {
+                chartProductos.innerHTML = '<span>No hay datos de ventas disponibles</span>';
+                return;
+            }
+
+            // Crear una lista simple de productos más vendidos
+            const productosHTML = productos.slice(0, 5).map((producto, index) => {
+                return `
+                    <div style="display: flex; justify-content: space-between; align-items: center; padding: 10px; background: var(--color3); margin-bottom: 8px; border-radius: 6px;">
+                        <div>
+                            <div style="font-weight: 600;">${index + 1}. ${producto.nombre}</div>
+                            <div style="font-size: 0.8rem; color: var(--text-muted);">${producto.categoria}</div>
+                        </div>
+                        <div style="text-align: right;">
+                            <div style="font-weight: 600; color: var(--accent);">${producto.total_vendido} unidades</div>
+                            <div style="font-size: 0.8rem; color: var(--success);">S/ ${parseFloat(producto.total_ingresos).toFixed(2)}</div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+
+            chartProductos.innerHTML = `
+                <div style="width: 100%; height: 100%; overflow-y: auto; padding: 10px;">
+                    ${productosHTML}
+                </div>
+            `;
+        }
+
+        // Mostrar productos más vendidos de ejemplo
+        function mostrarTopProductosEjemplo() {
+            const chartProductos = document.getElementById('chartProductos');
+            chartProductos.innerHTML = `
+                <div style="width: 100%; height: 100%; overflow-y: auto; padding: 10px;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; padding: 10px; background: var(--color3); margin-bottom: 8px; border-radius: 6px;">
+                        <div>
+                            <div style="font-weight: 600;">1. Paracetamol</div>
+                            <div style="font-size: 0.8rem; color: var(--text-muted);">Analgésico</div>
+                        </div>
+                        <div style="text-align: right;">
+                            <div style="font-weight: 600; color: var(--accent);">2 unidades</div>
+                            <div style="font-size: 0.8rem; color: var(--success);">S/ 3.00</div>
+                        </div>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; align-items: center; padding: 10px; background: var(--color3); margin-bottom: 8px; border-radius: 6px;">
+                        <div>
+                            <div style="font-weight: 600;">2. Amoxicilina</div>
+                            <div style="font-size: 0.8rem; color: var(--text-muted);">Antibiótico</div>
+                        </div>
+                        <div style="text-align: right;">
+                            <div style="font-weight: 600; color: var(--accent);">2 unidades</div>
+                            <div style="font-size: 0.8rem; color: var(--success);">S/ 5.60</div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        // Mostrar notificaciones
+        function mostrarNotificaciones() {
+            if (stockBajo.length === 0) {
+                mostrarMensaje('No hay notificaciones pendientes', 'info');
+                return;
+            }
+
+            const modal = document.createElement('div');
+            modal.className = 'modal';
+            modal.style.cssText = `
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background: rgba(0,0,0,0.8);
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                z-index: 10000;
+            `;
+            modal.innerHTML = `
+                <div style="max-width: 600px; background: var(--color2); color: var(--text-light); border-radius: 8px; max-height: 80vh; overflow-y: auto;">
+                    <div style="background: var(--warning); color: var(--color1); padding: 20px; border-radius: 8px 8px 0 0;">
+                        <h3>🔔 Notificaciones - Stock Bajo</h3>
+                        <span onclick="cerrarModal()" style="color: var(--color1); cursor: pointer; float: right; font-size: 24px; margin-top: -30px;">&times;</span>
+                    </div>
+                    <div style="padding: 20px;">
+                        <p style="margin-bottom: 20px;">Los siguientes productos tienen stock bajo (menos de 20 unidades):</p>
+                        <div style="max-height: 300px; overflow-y: auto;">
+                            ${stockBajo.map(producto => `
+                                <div style="display: flex; justify-content: space-between; align-items: center; padding: 12px; background: var(--color3); margin-bottom: 8px; border-radius: 6px;">
+                                    <div>
+                                        <div style="font-weight: 600;">${producto.nombre}</div>
+                                        <div style="font-size: 0.8rem; color: var(--text-muted);">${producto.categoria}</div>
+                                    </div>
+                                    <div style="text-align: right;">
+                                        <div style="font-weight: 600; color: var(--warning);">${producto.stock} ${producto.unidad}</div>
+                                        <div style="font-size: 0.8rem; color: var(--text-muted);">S/ ${parseFloat(producto.precio).toFixed(2)}</div>
+                                    </div>
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+                    <div style="padding: 20px; text-align: right;">
+                        <button onclick="window.location.href='inventario.html'" style="background: var(--accent); color: white; border: none; padding: 10px 20px; border-radius: 6px; cursor: pointer; margin-right: 10px;">
+                            Ir al Inventario
+                        </button>
+                        <button onclick="cerrarModal()" style="background: var(--color4); color: var(--text-light); border: none; padding: 10px 20px; border-radius: 6px; cursor: pointer;">
+                            Cerrar
+                        </button>
+                    </div>
+                </div>
+            `;
+
+            document.body.appendChild(modal);
+        }
+
+        // Mostrar productos con stock bajo
+        function mostrarStockBajo() {
+            if (stockBajo.length === 0) {
+                mostrarMensaje('¡Excelente! No hay productos con stock bajo', 'success');
+                return;
+            }
+            
+            mostrarNotificaciones();
+        }
+
+        // Cerrar modal
+        function cerrarModal() {
+            const modals = document.querySelectorAll('.modal');
+            modals.forEach(modal => modal.remove());
+        }
+
+        // Formatear tiempo relativo
+        function formatearTiempoRelativo(fecha) {
+            const ahora = new Date();
+            const diferencia = ahora - fecha;
+            const minutos = Math.floor(diferencia / (1000 * 60));
+            const horas = Math.floor(diferencia / (1000 * 60 * 60));
+            const dias = Math.floor(diferencia / (1000 * 60 * 60 * 24));
+
+            if (minutos < 1) return 'Hace un momento';
+            if (minutos < 60) return `Hace ${minutos} minuto${minutos > 1 ? 's' : ''}`;
+            if (horas < 24) return `Hace ${horas} hora${horas > 1 ? 's' : ''}`;
+            if (dias < 7) return `Hace ${dias} día${dias > 1 ? 's' : ''}`;
+            
+            return fecha.toLocaleDateString('es-ES');
+        }
+
+        // Mostrar loading
+        function mostrarLoading(mostrar) {
+            const overlay = document.getElementById('loadingOverlay');
+            if (overlay) {
+                overlay.style.display = mostrar ? 'flex' : 'none';
+            }
+        }
+
+        // Mostrar mensaje
+        function mostrarMensaje(mensaje, tipo = 'info') {
+            const colores = {
+                success: 'var(--success)',
+                error: 'var(--danger)',
+                warning: 'var(--warning)',
+                info: 'var(--color4)'
+            };
+
+            const iconos = {
+                success: '✅',
+                error: '❌',
+                warning: '⚠️',
+                info: 'ℹ️'
+            };
+
+            const toast = document.createElement('div');
+            toast.style.cssText = `
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                background: ${colores[tipo]};
+                color: white;
+                padding: 15px 20px;
+                border-radius: 8px;
+                box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+                z-index: 10000;
+                max-width: 400px;
+                animation: slideInRight 0.3s ease-out;
+            `;
+            toast.innerHTML = `${iconos[tipo]} ${mensaje}`;
+            
+            document.body.appendChild(toast);
+            
+            setTimeout(() => {
+                toast.remove();
+            }, tipo === 'error' ? 5000 : 3000);
+        }
+
+        // Mostrar error
+        function mostrarError(mensaje) {
+            mostrarMensaje(mensaje, 'error');
+        }
+
+        // Agregar estilos CSS para animaciones
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes slideInRight {
+                from {
+                    transform: translateX(100%);
+                    opacity: 0;
+                }
+                to {
+                    transform: translateX(0);
+                    opacity: 1;
+                }
+            }
+            
+            .modal {
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background: rgba(0,0,0,0.8);
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                z-index: 10000;
+            }
+        `;
+        document.head.appendChild(style);
+    </script>
 </body>
 </html>

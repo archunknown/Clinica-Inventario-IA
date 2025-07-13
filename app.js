@@ -31,12 +31,16 @@ const authRoutes = require('./routes/authRoutes');
 const inventarioRoutes = require('./routes/inventarioRoutes');
 const iaRoutes = require('./routes/iaRoutes');
 const ventasRoutes = require('./routes/ventasRoutes');
+const configRoutes = require('./routes/configRoutes');
+const dashboardRoutes = require('./routes/dashboardRoutes');
 
 // Usar rutas
 app.use('/api/auth', authRoutes);
 app.use('/api/inventario', inventarioRoutes);
 app.use('/api/ia', iaRoutes);
 app.use('/api/ventas', ventasRoutes);
+app.use('/api/config', configRoutes);
+app.use('/api/dashboard', dashboardRoutes);
 
 // Manejo de errores
 app.use((err, req, res, next) => {

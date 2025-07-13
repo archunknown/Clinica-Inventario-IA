@@ -722,7 +722,7 @@
                 <span class="nav-icon">🤖</span>
                 <span>Asistente IA</span>
             </a>
-            <a href="#" class="nav-item">
+            <a href="configuracion.html" class="nav-item">
                 <span class="nav-icon">⚙️</span>
                 <span>Configuración</span>
             </a>
@@ -827,11 +827,11 @@
                     <div class="label">Total Ventas</div>
                 </div>
                 <div class="estadistica-card">
-                    <div class="numero" id="total-ingresos">$0.00</div>
+                    <div class="numero" id="total-ingresos">S/ 0.00</div>
                     <div class="label">Ingresos Totales</div>
                 </div>
                 <div class="estadistica-card">
-                    <div class="numero" id="promedio-venta">$0.00</div>
+                    <div class="numero" id="promedio-venta">S/ 0.00</div>
                     <div class="label">Promedio por Venta</div>
                 </div>
                 <div class="estadistica-card">
@@ -1160,7 +1160,7 @@
                         <span class="venta-items">${venta.total_items || 0} item${(venta.total_items || 0) !== 1 ? 's' : ''}</span>
                     </td>
                     <td>
-                        <span class="venta-total">$${parseFloat(venta.total).toFixed(2)}</span>
+                        <span class="venta-total">S/ ${parseFloat(venta.total).toFixed(2)}</span>
                     </td>
                     <td>
                         <div class="venta-acciones">
@@ -1249,8 +1249,8 @@
             const ventasHoy = ventas.filter(venta => new Date(venta.fecha) >= inicioHoy).length;
 
             document.getElementById('total-ventas').textContent = totalVentas.toLocaleString();
-            document.getElementById('total-ingresos').textContent = `$${totalIngresos.toFixed(2)}`;
-            document.getElementById('promedio-venta').textContent = `$${promedioVenta.toFixed(2)}`;
+            document.getElementById('total-ingresos').textContent = `S/ ${totalIngresos.toFixed(2)}`;
+            document.getElementById('promedio-venta').textContent = `S/ ${promedioVenta.toFixed(2)}`;
             document.getElementById('ventas-hoy').textContent = ventasHoy.toLocaleString();
         }
 
@@ -1269,7 +1269,7 @@
                     document.getElementById('detalle-hora').textContent = formatearHora(venta.fecha);
                     document.getElementById('detalle-usuario').textContent = venta.usuario_nombre || 'Usuario';
                     document.getElementById('detalle-items').textContent = venta.detalles ? venta.detalles.length : 0;
-                    document.getElementById('detalle-total').textContent = `$${parseFloat(venta.total).toFixed(2)}`;
+                    document.getElementById('detalle-total').textContent = `S/ ${parseFloat(venta.total).toFixed(2)}`;
 
                     // Mostrar productos
                     const productosLista = document.getElementById('productos-lista');
@@ -1280,7 +1280,7 @@
                                     <div class="producto-nombre">${detalle.medicamento_nombre}</div>
                                     <div class="producto-cantidad">Cantidad: ${detalle.cantidad}</div>
                                 </div>
-                                <div class="producto-precio">$${parseFloat(detalle.subtotal).toFixed(2)}</div>
+                                <div class="producto-precio">S/ ${parseFloat(detalle.subtotal).toFixed(2)}</div>
                             </div>
                         `).join('');
                     } else {

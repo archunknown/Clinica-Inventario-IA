@@ -1,0 +1,716 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Configuración - Sistema de Inventario Clínica</title>
+    <style>
+        :root {
+            --color1: #060606;
+            --color2: #06131e;
+            --color3: #0c2437;
+            --color4: #123752;
+            --color5: #184b71;
+            --accent: #e91e63;
+            --accent-hover: #c2185b;
+            --text-light: #f5f5f5;
+            --text-muted: #a0a0a0;
+            --success: #4caf50;
+            --warning: #ff9800;
+            --danger: #f44336;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background: var(--color1);
+            color: var(--text-light);
+            min-height: 100vh;
+            display: flex;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: 280px;
+            background: var(--color2);
+            padding: 30px 20px;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 2px 0 10px rgba(0,0,0,0.3);
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 50px;
+            padding-bottom: 30px;
+            border-bottom: 1px solid var(--color3);
+        }
+
+        .logo-icon {
+            width: 50px;
+            height: 50px;
+            background: var(--color5);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            font-weight: bold;
+        }
+
+        .logo-text h2 {
+            font-size: 1.5rem;
+            color: var(--text-light);
+            font-weight: 700;
+        }
+
+        .logo-text p {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+        }
+
+        .nav-menu {
+            flex: 1;
+        }
+
+        .nav-item {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            padding: 15px 20px;
+            margin-bottom: 10px;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            color: var(--text-light);
+        }
+
+        .nav-item:hover {
+            background: var(--color3);
+            transform: translateX(5px);
+        }
+
+        .nav-item.active {
+            background: var(--color4);
+            box-shadow: 0 4px 15px rgba(24, 75, 113, 0.3);
+        }
+
+        .nav-icon {
+            width: 24px;
+            height: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .user-profile {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            padding: 20px;
+            background: var(--color3);
+            border-radius: 12px;
+            margin-top: auto;
+        }
+
+        .user-avatar {
+            width: 45px;
+            height: 45px;
+            background: var(--color5);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+        }
+
+        /* Main Content */
+        .main-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Header */
+        .header {
+            background: var(--color2);
+            padding: 20px 40px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.3);
+        }
+
+        .header-left h1 {
+            font-size: 1.8rem;
+            color: var(--text-light);
+            margin-bottom: 5px;
+        }
+
+        .header-left p {
+            color: var(--text-muted);
+        }
+
+        .header-actions {
+            display: flex;
+            gap: 15px;
+        }
+
+        .header-btn {
+            padding: 10px 20px;
+            background: var(--color3);
+            border: none;
+            border-radius: 8px;
+            color: var(--text-light);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .header-btn:hover {
+            background: var(--color4);
+            transform: translateY(-2px);
+        }
+
+        .header-btn.primary {
+            background: var(--accent);
+        }
+
+        .header-btn.primary:hover {
+            background: var(--accent-hover);
+        }
+
+        /* Configuration Content */
+        .config-content {
+            flex: 1;
+            padding: 40px;
+            overflow-y: auto;
+        }
+
+        .config-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(500px, 1fr));
+            gap: 30px;
+        }
+
+        .config-card {
+            background: var(--color2);
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+            transition: all 0.3s ease;
+        }
+
+        .config-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.4);
+        }
+
+        .card-header {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 25px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid var(--color3);
+        }
+
+        .card-icon {
+            width: 50px;
+            height: 50px;
+            background: var(--color4);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+        }
+
+        .card-title {
+            font-size: 1.4rem;
+            font-weight: 600;
+            color: var(--text-light);
+        }
+
+        .card-subtitle {
+            font-size: 0.9rem;
+            color: var(--text-muted);
+            margin-top: 5px;
+        }
+
+        /* Form Styles */
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: var(--text-light);
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 12px 15px;
+            background: var(--color3);
+            border: 1px solid var(--color4);
+            border-radius: 8px;
+            color: var(--text-light);
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px rgba(233, 30, 99, 0.1);
+        }
+
+        .form-input::placeholder {
+            color: var(--text-muted);
+        }
+
+        .form-button {
+            padding: 12px 25px;
+            background: var(--accent);
+            border: none;
+            border-radius: 8px;
+            color: var(--text-light);
+            font-size: 1rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .form-button:hover {
+            background: var(--accent-hover);
+            transform: translateY(-2px);
+        }
+
+        .form-button:disabled {
+            background: var(--color4);
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .form-button.secondary {
+            background: var(--color4);
+        }
+
+        .form-button.secondary:hover {
+            background: var(--color5);
+        }
+
+        /* Alert Messages */
+        .alert {
+            padding: 15px 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            display: none;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .alert.success {
+            background: rgba(76, 175, 80, 0.1);
+            border: 1px solid var(--success);
+            color: var(--success);
+        }
+
+        .alert.error {
+            background: rgba(244, 67, 54, 0.1);
+            border: 1px solid var(--danger);
+            color: var(--danger);
+        }
+
+        .alert.show {
+            display: flex;
+        }
+
+        /* Profile Info */
+        .profile-info {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            padding: 20px;
+            background: var(--color3);
+            border-radius: 12px;
+            margin-bottom: 25px;
+        }
+
+        .profile-avatar {
+            width: 80px;
+            height: 80px;
+            background: var(--color5);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            font-weight: bold;
+        }
+
+        .profile-details h3 {
+            font-size: 1.3rem;
+            margin-bottom: 5px;
+        }
+
+        .profile-details p {
+            color: var(--text-muted);
+            margin-bottom: 3px;
+        }
+
+        /* Read-only Profile Styles */
+        .form-display {
+            width: 100%;
+            padding: 12px 15px;
+            background: var(--color3);
+            border: 1px solid var(--color4);
+            border-radius: 8px;
+            color: var(--text-light);
+            font-size: 1rem;
+            min-height: 45px;
+            display: flex;
+            align-items: center;
+        }
+
+        .info-message {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 15px 20px;
+            background: rgba(24, 75, 113, 0.1);
+            border: 1px solid var(--color5);
+            border-radius: 8px;
+            color: var(--color5);
+            font-size: 0.9rem;
+            margin-top: 20px;
+        }
+
+        /* Responsive */
+        @media (max-width: 1200px) {
+            .config-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 768px) {
+            body {
+                flex-direction: column;
+            }
+
+            .sidebar {
+                width: 100%;
+                padding: 20px;
+            }
+
+            .config-content {
+                padding: 20px;
+            }
+
+            .header {
+                padding: 20px;
+            }
+        }
+
+        /* Iconos simulados con caracteres Unicode */
+        .icon-dashboard::before { content: "📊"; }
+        .icon-inventory::before { content: "📦"; }
+        .icon-sales::before { content: "💰"; }
+        .icon-cart::before { content: "🛒"; }
+        .icon-ai::before { content: "🤖"; }
+        .icon-settings::before { content: "⚙️"; }
+        .icon-logout::before { content: "🚪"; }
+        .icon-user::before { content: "👤"; }
+        .icon-lock::before { content: "🔒"; }
+        .icon-save::before { content: "💾"; }
+    </style>
+</head>
+<body>
+    <!-- Sidebar -->
+    <aside class="sidebar">
+        <div class="logo">
+            <div class="logo-icon">CI</div>
+            <div class="logo-text">
+                <h2>Clínica Inventario</h2>
+                <p>Sistema de Gestión</p>
+            </div>
+        </div>
+
+        <nav class="nav-menu">
+            <a href="dashboard.html" class="nav-item">
+                <span class="nav-icon icon-dashboard"></span>
+                <span>Dashboard</span>
+            </a>
+            <a href="inventario.html" class="nav-item">
+                <span class="nav-icon icon-inventory"></span>
+                <span>Inventario</span>
+            </a>
+            <a href="ventas.html" class="nav-item">
+                <span class="nav-icon icon-sales"></span>
+                <span>Ventas</span>
+            </a>
+            <a href="carrito.html" class="nav-item">
+                <span class="nav-icon icon-cart"></span>
+                <span>Carrito</span>
+            </a>
+            <a href="asistente-ia.html" class="nav-item">
+                <span class="nav-icon icon-ai"></span>
+                <span>Asistente IA</span>
+            </a>
+            <a href="#" class="nav-item active">
+                <span class="nav-icon icon-settings"></span>
+                <span>Configuración</span>
+            </a>
+            <a href="login.html" class="nav-item">
+                <span class="nav-icon icon-logout"></span>
+                <span>Cerrar Sesión</span>
+            </a>
+        </nav>
+
+        <div class="user-profile">
+            <div class="user-avatar" id="sidebarAvatar">U</div>
+            <div>
+                <div style="font-weight: 600;" id="sidebarUsername">Usuario</div>
+                <div style="font-size: 0.85rem; color: var(--text-muted);" id="sidebarRole">Administrador</div>
+            </div>
+        </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <!-- Header -->
+        <header class="header">
+            <div class="header-left">
+                <h1>Configuración</h1>
+                <p>Gestiona tu perfil y configuración del sistema</p>
+            </div>
+            <div class="header-actions">
+                <button class="header-btn" onclick="location.reload()">
+                    <span>🔄</span>
+                    <span>Actualizar</span>
+                </button>
+            </div>
+        </header>
+
+        <!-- Configuration Content -->
+        <div class="config-content">
+            <div class="config-grid">
+                <!-- Perfil de Usuario -->
+                <div class="config-card">
+                    <div class="card-header">
+                        <div class="card-icon icon-user"></div>
+                        <div>
+                            <div class="card-title">Perfil de Usuario</div>
+                            <div class="card-subtitle">Información personal y datos de la cuenta</div>
+                        </div>
+                    </div>
+
+                    <div class="profile-info">
+                        <div class="profile-avatar" id="profileAvatar">U</div>
+                        <div class="profile-details">
+                            <h3 id="profileUsername">Cargando...</h3>
+                            <p id="profileRole">Rol: Cargando...</p>
+                            <p>ID: <span id="profileId">-</span></p>
+                        </div>
+                    </div>
+
+                    <div class="profile-readonly">
+                        <div class="form-group">
+                            <label class="form-label">Nombre de Usuario</label>
+                            <div class="form-display" id="usernameDisplay">Cargando...</div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">Rol</label>
+                            <div class="form-display" id="rolDisplay">Cargando...</div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">ID de Usuario</label>
+                            <div class="form-display" id="userIdDisplay">-</div>
+                        </div>
+
+                        <div class="info-message">
+                            <span>ℹ️</span>
+                            <span>Los datos del perfil son de solo lectura. Contacta al administrador para cambios.</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Cambiar Contraseña -->
+                <div class="config-card">
+                    <div class="card-header">
+                        <div class="card-icon icon-lock"></div>
+                        <div>
+                            <div class="card-title">Seguridad</div>
+                            <div class="card-subtitle">Cambiar contraseña y configuración de seguridad</div>
+                        </div>
+                    </div>
+
+                    <form id="passwordForm">
+                        <div class="alert" id="passwordAlert"></div>
+                        
+                        <div class="form-group">
+                            <label class="form-label" for="currentPassword">Contraseña Actual</label>
+                            <input type="password" id="currentPassword" class="form-input" placeholder="Ingresa tu contraseña actual" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label" for="newPassword">Nueva Contraseña</label>
+                            <input type="password" id="newPassword" class="form-input" placeholder="Ingresa tu nueva contraseña" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label" for="confirmPassword">Confirmar Nueva Contraseña</label>
+                            <input type="password" id="confirmPassword" class="form-input" placeholder="Confirma tu nueva contraseña" required>
+                        </div>
+
+                        <button type="submit" class="form-button">
+                            <span class="icon-lock"></span>
+                            <span>Cambiar Contraseña</span>
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        // Variables globales
+        let currentUser = null;
+
+        // Cargar datos del usuario al iniciar
+        document.addEventListener('DOMContentLoaded', function() {
+            cargarPerfilUsuario();
+        });
+
+        // Función para cargar el perfil del usuario
+        async function cargarPerfilUsuario() {
+            try {
+                const response = await fetch('/api/config/perfil');
+                const data = await response.json();
+
+                if (data.success) {
+                    currentUser = data.data;
+                    actualizarInterfazUsuario(currentUser);
+                } else {
+                    // Si no se puede cargar el perfil, usar datos por defecto
+                    currentUser = {
+                        id: 1,
+                        username: 'admin',
+                        rol: 'administrador'
+                    };
+                    actualizarInterfazUsuario(currentUser);
+                }
+            } catch (error) {
+                console.error('Error al cargar perfil:', error);
+                // Usar datos por defecto en caso de error
+                currentUser = {
+                    id: 1,
+                    username: 'admin',
+                    rol: 'administrador'
+                };
+                actualizarInterfazUsuario(currentUser);
+            }
+        }
+
+        // Función para actualizar la interfaz con los datos del usuario
+        function actualizarInterfazUsuario(user) {
+            const avatar = user.username.charAt(0).toUpperCase();
+            const rolCapitalizado = user.rol.charAt(0).toUpperCase() + user.rol.slice(1);
+            
+            // Actualizar sidebar
+            document.getElementById('sidebarAvatar').textContent = avatar;
+            document.getElementById('sidebarUsername').textContent = user.username;
+            document.getElementById('sidebarRole').textContent = rolCapitalizado;
+            
+            // Actualizar perfil principal
+            document.getElementById('profileAvatar').textContent = avatar;
+            document.getElementById('profileUsername').textContent = user.username;
+            document.getElementById('profileRole').textContent = `Rol: ${rolCapitalizado}`;
+            document.getElementById('profileId').textContent = user.id;
+            
+            // Actualizar campos de solo lectura
+            document.getElementById('usernameDisplay').textContent = user.username;
+            document.getElementById('rolDisplay').textContent = rolCapitalizado;
+            document.getElementById('userIdDisplay').textContent = user.id;
+        }
+
+        // Manejar formulario de contraseña
+        document.getElementById('passwordForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const currentPassword = document.getElementById('currentPassword').value;
+            const newPassword = document.getElementById('newPassword').value;
+            const confirmPassword = document.getElementById('confirmPassword').value;
+
+            // Validaciones del lado del cliente
+            if (newPassword !== confirmPassword) {
+                mostrarAlerta(document.getElementById('passwordAlert'), 'error', 'Las contraseñas nuevas no coinciden');
+                return;
+            }
+
+            if (newPassword.length < 4) {
+                mostrarAlerta(document.getElementById('passwordAlert'), 'error', 'La contraseña debe tener al menos 4 caracteres');
+                return;
+            }
+
+            const formData = {
+                passwordActual: currentPassword,
+                passwordNueva: newPassword,
+                confirmarPassword: confirmPassword
+            };
+
+            try {
+                const response = await fetch('/api/config/password', {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(formData)
+                });
+
+                const data = await response.json();
+                const alert = document.getElementById('passwordAlert');
+
+                if (data.success) {
+                    mostrarAlerta(alert, 'success', data.message);
+                    // Limpiar formulario
+                    document.getElementById('passwordForm').reset();
+                } else {
+                    mostrarAlerta(alert, 'error', data.message);
+                }
+            } catch (error) {
+                console.error('Error al cambiar contraseña:', error);
+                mostrarAlerta(document.getElementById('passwordAlert'), 'error', 'Error de conexión');
+            }
+        });
+
+        // Función para mostrar alertas
+        function mostrarAlerta(elemento, tipo, mensaje) {
+            elemento.className = `alert ${tipo} show`;
+            elemento.textContent = mensaje;
+            
+            // Ocultar después de 5 segundos
+            setTimeout(() => {
+                elemento.classList.remove('show');
+            }, 5000);
+        }
+    </script>
+</body>
+</html>
