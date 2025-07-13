@@ -43,7 +43,7 @@ function cargarUsuario() {
 // Cargar productos desde la API
 async function cargarProductos() {
     try {
-        const response = await fetch('/api/inventario/medicamentos');
+        const response = await fetch('/api/inventario');
         const data = await response.json();
         
         if (data.success) {
@@ -174,10 +174,10 @@ function actualizarResumen() {
     const descuento = 0; // Por ahora sin descuentos
     const total = subtotal - descuento;
 
-    subtotalElement.textContent = `$${subtotal.toFixed(2)}`;
-    descuentoElement.textContent = `$${descuento.toFixed(2)}`;
-    totalElement.textContent = `$${total.toFixed(2)}`;
-    totalProcesar.textContent = `$${total.toFixed(2)}`;
+    subtotalElement.textContent = `S/ ${subtotal.toFixed(2)}`;
+    descuentoElement.textContent = `S/ ${descuento.toFixed(2)}`;
+    totalElement.textContent = `S/ ${total.toFixed(2)}`;
+    totalProcesar.textContent = `S/ ${total.toFixed(2)}`;
 }
 
 // Renderizar items del carrito
@@ -200,7 +200,7 @@ function renderizarCarrito() {
             <div class="item-info">
                 <div class="item-nombre">${item.nombre}</div>
                 <div class="item-categoria">${item.categoria}</div>
-                <div class="item-precio">${item.precio.toFixed(2)} c/u</div>
+                <div class="item-precio">S/ ${item.precio.toFixed(2)} c/u</div>
             </div>
             <div class="cantidad-controls">
                 <button class="cantidad-btn" onclick="actualizarCantidad(${item.id}, ${item.cantidad - 1})">-</button>
@@ -209,7 +209,7 @@ function renderizarCarrito() {
                        min="1" max="${item.stock}">
                 <button class="cantidad-btn" onclick="actualizarCantidad(${item.id}, ${item.cantidad + 1})">+</button>
             </div>
-            <div class="item-subtotal">$${(item.precio * item.cantidad).toFixed(2)}</div>
+            <div class="item-subtotal">S/ ${(item.precio * item.cantidad).toFixed(2)}</div>
             <button class="item-eliminar" onclick="eliminarDelCarrito(${item.id})" title="Eliminar producto">
                 ✕
             </button>
@@ -278,7 +278,7 @@ function renderizarProductosSugeridos(productosParaMostrar) {
 
         productoElement.innerHTML = `
             <div class="producto-nombre">${producto.nombre}</div>
-            <div class="producto-precio">$${parseFloat(producto.precio).toFixed(2)}</div>
+            <div class="producto-precio">S/ ${parseFloat(producto.precio).toFixed(2)}</div>
             <div class="producto-stock" style="${stockClass}">Stock: ${producto.stock}</div>
         `;
         
@@ -319,7 +319,7 @@ function mostrarModalConfirmacion() {
                 <span class="modal-item-categoria">${item.categoria}</span>
             </div>
             <div class="modal-item-cantidad">x${item.cantidad}</div>
-            <div class="modal-item-precio">$${(item.precio * item.cantidad).toFixed(2)}</div>
+            <div class="modal-item-precio">S/ ${(item.precio * item.cantidad).toFixed(2)}</div>
         </div>
     `).join('');
 
@@ -372,15 +372,15 @@ function mostrarModalConfirmacion() {
                     <div class="modal-totales">
                         <div class="modal-total-item">
                             <span>Subtotal:</span>
-                            <span>$${subtotal.toFixed(2)}</span>
+                            <span>S/ ${subtotal.toFixed(2)}</span>
                         </div>
                         <div class="modal-total-item">
                             <span>IGV (18%):</span>
-                            <span>$${igv.toFixed(2)}</span>
+                            <span>S/ ${igv.toFixed(2)}</span>
                         </div>
                         <div class="modal-total-item modal-total-final">
                             <span>Total a Pagar:</span>
-                            <span>$${total.toFixed(2)}</span>
+                            <span>S/ ${total.toFixed(2)}</span>
                         </div>
                     </div>
                 </div>

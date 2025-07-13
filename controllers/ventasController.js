@@ -308,17 +308,19 @@ class VentasController {
 
             // Agregar datos del cliente si existe
             if (venta.cliente_id) {
-                const ClienteModel = require('../models/clienteModel');
-                const cliente = await ClienteModel.buscarPorId(venta.cliente_id);
-                if (cliente) {
-                    ventaData.cliente = {
-                        dni: cliente.dni,
-                        nombre: cliente.nombre,
-                        apellido_paterno: cliente.apellido_paterno,
-                        apellido_materno: cliente.apellido_materno,
-                        nombre_completo: `${cliente.nombre || ''} ${cliente.apellido_paterno || ''} ${cliente.apellido_materno || ''}`.trim()
-                    };
-                }
+                // Los datos del cliente ya vienen en la consulta del modelo VentaModel.getById
+                ventaData.cliente = {
+                    dni: venta.cliente_dni,
+                    nombre: venta.cliente_nombre,
+                    apellido_paterno: venta.cliente_apellido_paterno,
+                    apellido_materno: venta.cliente_apellido_materno,
+                    nombre_completo: venta.cliente_nombre_completo || 
+                        `${venta.cliente_nombre || ''} ${venta.cliente_apellido_paterno || ''} ${venta.cliente_apellido_materno || ''}`.trim()
+                };
+                
+                console.log('Datos del cliente para PDF:', ventaData.cliente); // LOG DE DEPURACIÓN
+            } else {
+                console.log('No hay cliente_id en la venta'); // LOG DE DEPURACIÓN
             }
 
             // Generar PDF

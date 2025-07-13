@@ -40,6 +40,45 @@ class UsuarioModel {
             throw error;
         }
     }
+
+    // Buscar usuario por ID
+    static async findById(id) {
+        try {
+            const query = 'SELECT * FROM usuarios WHERE id = $1';
+            const result = await db.query(query, [id]);
+            return result.rows[0];
+        } catch (error) {
+            console.error('Error al buscar usuario por ID:', error);
+            throw error;
+        }
+    }
+
+    // Actualizar contraseña
+    static async updatePassword(userId, newPassword) {
+        try {
+            // Por simplicidad, guardamos la contraseña en texto plano
+            // En producción deberías hashearla
+            const query = 'UPDATE usuarios SET password = $1 WHERE id = $2';
+            const result = await db.query(query, [newPassword, userId]);
+            return result.rowCount > 0;
+        } catch (error) {
+            console.error('Error al actualizar contraseña:', error);
+            throw error;
+        }
+    }
+
+    // Actualizar perfil de usuario
+    static async updateProfile(userId, userData) {
+        try {
+            const { username, rol } = userData;
+            const query = 'UPDATE usuarios SET username = $1, rol = $2 WHERE id = $3';
+            const result = await db.query(query, [username, rol, userId]);
+            return result.rowCount > 0;
+        } catch (error) {
+            console.error('Error al actualizar perfil:', error);
+            throw error;
+        }
+    }
 }
 
 module.exports = UsuarioModel;
