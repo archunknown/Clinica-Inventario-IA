@@ -200,7 +200,7 @@ function renderizarCarrito() {
             <div class="item-info">
                 <div class="item-nombre">${item.nombre}</div>
                 <div class="item-categoria">${item.categoria}</div>
-                <div class="item-precio">$${item.precio.toFixed(2)} c/u</div>
+                <div class="item-precio">${item.precio.toFixed(2)} c/u</div>
             </div>
             <div class="cantidad-controls">
                 <button class="cantidad-btn" onclick="actualizarCantidad(${item.id}, ${item.cantidad - 1})">-</button>
@@ -331,6 +331,35 @@ function mostrarModalConfirmacion() {
             </div>
             
             <div class="modal-body">
+                <div class="modal-section">
+                    <h3>👤 Datos del Cliente</h3>
+                    <div class="cliente-form">
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="cliente-dni">DNI:</label>
+                                <input type="text" id="cliente-dni" class="form-control" placeholder="12345678" maxlength="8" pattern="[0-9]{8}">
+                            </div>
+                            <div class="form-group">
+                                <label for="cliente-nombre">Nombres:</label>
+                                <input type="text" id="cliente-nombre" class="form-control" placeholder="Juan Carlos">
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="cliente-apellido-paterno">Apellido Paterno:</label>
+                                <input type="text" id="cliente-apellido-paterno" class="form-control" placeholder="García">
+                            </div>
+                            <div class="form-group">
+                                <label for="cliente-apellido-materno">Apellido Materno:</label>
+                                <input type="text" id="cliente-apellido-materno" class="form-control" placeholder="López">
+                            </div>
+                        </div>
+                        <div class="form-note">
+                            <small>* Los datos del cliente son opcionales. Si el cliente ya existe, se actualizarán sus datos.</small>
+                        </div>
+                    </div>
+                </div>
+                
                 <div class="modal-section">
                     <h3>📋 Resumen del Pedido</h3>
                     <div class="modal-items">
@@ -587,6 +616,54 @@ function mostrarModalConfirmacion() {
             transform: translateY(-2px);
         }
         
+        .cliente-form {
+            background: var(--color3);
+            border-radius: var(--border-radius);
+            padding: 20px;
+        }
+        
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+        
+        .form-group {
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .form-group label {
+            color: var(--text-muted);
+            font-size: 0.9rem;
+            margin-bottom: 5px;
+            font-weight: 600;
+        }
+        
+        .form-control {
+            padding: 10px;
+            background: var(--color4);
+            border: 1px solid var(--color5);
+            border-radius: var(--border-radius-sm);
+            color: var(--text-light);
+            font-size: 1rem;
+            transition: var(--transition);
+        }
+        
+        .form-control:focus {
+            outline: none;
+            background: var(--color5);
+            border-color: var(--accent);
+        }
+        
+        .form-note {
+            margin-top: 10px;
+            color: var(--text-muted);
+            font-size: 0.85rem;
+            text-align: center;
+        }
+        
         @keyframes slideIn {
             from {
                 transform: translateY(-50px);
@@ -631,6 +708,12 @@ function cerrarModalConfirmacion() {
 
 // Confirmar venta y generar PDF
 async function confirmarVenta() {
+    // Obtener datos del cliente del modal antes de cerrarlo
+    const clienteDni = document.getElementById('cliente-dni').value.trim();
+    const clienteNombre = document.getElementById('cliente-nombre').value.trim();
+    const clienteApellidoPaterno = document.getElementById('cliente-apellido-paterno').value.trim();
+    const clienteApellidoMaterno = document.getElementById('cliente-apellido-materno').value.trim();
+    
     // Cerrar modal
     cerrarModalConfirmacion();
     
@@ -646,6 +729,19 @@ async function confirmarVenta() {
                 cantidad: item.cantidad
             }))
         };
+
+        // Agregar datos del cliente si se proporcionaron
+        if (clienteDni || clienteNombre || clienteApellidoPaterno || clienteApellidoMaterno) {
+            ventaData.cliente = {
+                dni: clienteDni,
+                nombre: clienteNombre,
+                apellido_paterno: clienteApellidoPaterno,
+                apellido_materno: clienteApellidoMaterno
+            };
+            console.log('Datos del cliente a enviar:', ventaData.cliente); // LOG DE DEPURACIÓN
+        }
+
+        console.log('Datos completos de la venta:', ventaData); // LOG DE DEPURACIÓN
 
         // Enviar venta al servidor
         const response = await fetch('/api/ventas/crear', {

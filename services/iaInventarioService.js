@@ -17,29 +17,50 @@ class IAInventarioService {
     // Procesar consulta con IA
     static async procesarConsulta(pregunta) {
         try {
-            // Obtener datos actuales del inventario
-            const inventario = await this.obtenerContextoInventario();
+            // Obtener datos actuales del inventario, clientes y ventas
+            const contexto = await this.obtenerContextoCompleto();
             
-            // Crear contexto para la IA
+            // Crear contexto expandido para la IA
             const context = `
-Eres un asistente médico inteligente de una clínica. Tu tarea es responder de manera natural, profesional y clara preguntas sobre el inventario de medicamentos.
+Eres un asistente médico inteligente de una clínica. Tu tarea es responder de manera natural, profesional y clara preguntas sobre el inventario de medicamentos, clientes y ventas.
 
 INVENTARIO ACTUAL DE MEDICAMENTOS:
-${JSON.stringify(inventario, null, 2)}
+${JSON.stringify(contexto.inventario, null, 2)}
+
+CLIENTES REGISTRADOS:
+${JSON.stringify(contexto.clientes, null, 2)}
+
+HISTORIAL DE VENTAS RECIENTES:
+${JSON.stringify(contexto.ventas, null, 2)}
 
 INSTRUCCIONES:
 1. Responde de forma natural y conversacional
 2. Si el usuario escribe con errores ortográficos o de forma informal, igual debes entenderlo
-3. Proporciona información útil sobre los medicamentos disponibles
-4. Si preguntan por algo que no está en el inventario, indícalo claramente
+3. Proporciona información útil sobre medicamentos, clientes y ventas
+4. Si preguntan por algo que no está disponible, indícalo claramente
 5. Cuando menciones cantidades, usa las unidades apropiadas
 6. Si es relevante, menciona la categoría del medicamento
-7. Sé conciso pero completo en tus respuestas
+7. Para consultas de ventas, puedes proporcionar estadísticas y análisis
+8. Para consultas de clientes, puedes buscar por DNI o nombre
+9. Sé conciso pero completo en tus respuestas
+10. Mantén la confidencialidad de los datos sensibles
 
 EJEMPLOS DE RESPUESTAS:
 - "Sí, tenemos Amoxicilina disponible. Actualmente contamos con 30 cápsulas en stock."
 - "Para la gripe, tenemos disponibles: Paracetamol (50 tabletas) y otros analgésicos que pueden ayudar con los síntomas."
+- "El cliente con DNI 12345678 es Juan Pérez García y ha realizado 3 compras este mes."
+- "En las últimas ventas, el medicamento más vendido ha sido Paracetamol con 15 unidades."
 - "Lo siento, no tenemos ese medicamento en nuestro inventario actual."
+
+TIPOS DE CONSULTAS QUE PUEDES RESPONDER:
+- Disponibilidad de medicamentos
+- Información sobre stock y precios
+- Búsqueda de clientes por DNI o nombre
+- Estadísticas de ventas
+- Medicamentos más vendidos
+- Historial de compras de clientes
+- Recomendaciones por síntomas
+- Análisis de inventario
 `;
 
             // Llamar a OpenRouter API
@@ -95,6 +116,68 @@ EJEMPLOS DE RESPUESTAS:
     // Verificar disponibilidad de medicamento
     static async verificarDisponibilidad(medicamento) {
         const pregunta = `¿Hay ${medicamento} disponible en el inventario? ¿Cuántas unidades?`;
+        return await this.procesarConsulta(pregunta);
+    }
+
+    // Obtener contexto de clientes desde la vista de PostgreSQL
+    static async obtenerContextoClientes() {
+        try {
+            const query = 'SELECT * FROM vista_clientes_util ORDER BY nombre_completo';
+            const result = await db.query(query);
+            return result.rows;
+        } catch (error) {
+            console.error('Error al obtener clientes para IA:', error);
+            throw error;
+        }
+    }
+
+    // Obtener contexto de ventas desde la vista de PostgreSQL
+    static async obtenerContextoVentas(limite = 50) {
+        try {
+            const query = 'SELECT * FROM vista_ventas_util LIMIT $1';
+            const result = await db.query(query, [limite]);
+            return result.rows;
+        } catch (error) {
+            console.error('Error al obtener ventas para IA:', error);
+            throw error;
+        }
+    }
+
+    // Obtener contexto completo para la IA
+    static async obtenerContextoCompleto() {
+        try {
+            const [inventario, clientes, ventas] = await Promise.all([
+                this.obtenerContextoInventario(),
+                this.obtenerContextoClientes(),
+                this.obtenerContextoVentas()
+            ]);
+
+            return {
+                inventario,
+                clientes,
+                ventas
+            };
+        } catch (error) {
+            console.error('Error al obtener contexto completo para IA:', error);
+            throw error;
+        }
+    }
+
+    // Buscar cliente por DNI o nombre
+    static async buscarCliente(busqueda) {
+        const pregunta = `Busca información del cliente: ${busqueda}. Puede ser por DNI o nombre.`;
+        return await this.procesarConsulta(pregunta);
+    }
+
+    // Obtener estadísticas de ventas
+    static async obtenerEstadisticasVentas() {
+        const pregunta = "Dame un resumen de las estadísticas de ventas recientes, incluyendo medicamentos más vendidos y tendencias.";
+        return await this.procesarConsulta(pregunta);
+    }
+
+    // Analizar inventario
+    static async analizarInventario() {
+        const pregunta = "Analiza el estado actual del inventario: productos con stock bajo, categorías más representadas, y recomendaciones.";
         return await this.procesarConsulta(pregunta);
     }
 }

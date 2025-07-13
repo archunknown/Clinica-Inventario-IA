@@ -32,6 +32,7 @@
       justify-content: center;
       align-items: center;
       padding: 20px;
+      position: relative;
     }
 
     .container {
@@ -43,6 +44,8 @@
       overflow: hidden;
       box-shadow: 0 0 30px rgba(0,0,0,0.5);
       background: var(--color1);
+      position: relative;
+      z-index: 1;
     }
 
     .left-panel {
@@ -153,6 +156,83 @@
       box-shadow: 0 8px 20px rgba(194, 24, 91, 0.8);
     }
 
+    /* Sección de creadores */
+    .creators-section {
+      position: absolute;
+      top: 20px;
+      right: 20px;
+      display: flex;
+      gap: 15px;
+      align-items: center;
+      z-index: 10;
+    }
+
+    .creator-card {
+      position: relative;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .creator-avatar {
+      width: 60px;
+      height: 60px;
+      border-radius: 50%;
+      border: 3px solid var(--color5);
+      object-fit: cover;
+      transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+      box-shadow: 0 4px 15px rgba(24, 75, 113, 0.3);
+    }
+
+    .creator-card:hover .creator-avatar {
+      transform: scale(1.15);
+      border-color: var(--button-color);
+      box-shadow: 0 6px 25px rgba(233, 30, 99, 0.4);
+    }
+
+    .creator-tooltip {
+      position: absolute;
+      bottom: -35px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: var(--color1);
+      color: var(--text-light);
+      padding: 8px 12px;
+      border-radius: 8px;
+      font-size: 0.85rem;
+      white-space: nowrap;
+      opacity: 0;
+      visibility: hidden;
+      transition: all 0.3s ease;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+      z-index: 20;
+    }
+
+    .creator-tooltip::before {
+      content: '';
+      position: absolute;
+      top: -5px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 0;
+      height: 0;
+      border-left: 5px solid transparent;
+      border-right: 5px solid transparent;
+      border-bottom: 5px solid var(--color1);
+    }
+
+    .creator-card:hover .creator-tooltip {
+      opacity: 1;
+      visibility: visible;
+      transform: translateX(-50%) translateY(-5px);
+    }
+
+    .creators-label {
+      font-size: 0.9rem;
+      color: var(--text-muted);
+      margin-right: 10px;
+      font-weight: 500;
+    }
+
     /* Responsive */
     @media (max-width: 900px) {
       .container {
@@ -175,10 +255,58 @@
       .right-panel {
         padding: 30px 20px;
       }
+
+      .creators-section {
+        top: 10px;
+        right: 10px;
+        gap: 10px;
+      }
+
+      .creator-avatar {
+        width: 50px;
+        height: 50px;
+      }
+
+      .creators-label {
+        font-size: 0.8rem;
+      }
+    }
+
+    @media (max-width: 600px) {
+      .creators-section {
+        position: relative;
+        top: 0;
+        right: 0;
+        justify-content: center;
+        margin-bottom: 20px;
+        padding: 15px;
+        background: rgba(6, 6, 6, 0.8);
+        border-radius: 0 0 15px 15px;
+      }
+
+      .creators-label {
+        margin-right: 0;
+        margin-bottom: 10px;
+        text-align: center;
+        width: 100%;
+      }
     }
   </style>
 </head>
 <body>
+  <!-- Sección de creadores -->
+  <div class="creators-section">
+    <span class="creators-label">Creado por:</span>
+    <div class="creator-card" onclick="openInstagram('creador1')">
+      <img src="/img/c1.jpg" alt="Creador 1" class="creator-avatar" onerror="this.src='https://via.placeholder.com/60x60/184b71/ffffff?text=AD'">
+      <div class="creator-tooltip">@depor.adrian</div>
+    </div>
+    <div class="creator-card" onclick="openInstagram('creador2')">
+      <img src="/img/c2.jpg" alt="Creador 2" class="creator-avatar" onerror="this.src='https://via.placeholder.com/60x60/e91e63/ffffff?text=CG'">
+      <div class="creator-tooltip">@crisgus7294</div>
+    </div>
+  </div>
+
   <div class="container" role="main" aria-label="Formulario de inicio de sesión">
     <div class="left-panel" aria-label="Panel de imagen y bienvenida">
       <div class="left-content">
@@ -199,6 +327,21 @@
   </div>
 
   <script>
+    // Función para abrir Instagram
+    function openInstagram(creatorUsername) {
+      // Reemplaza estos usernames con los reales de Instagram
+      const instagramUsernames = {
+        'creador1': 'depor.adrian',
+        'creador2': 'crisgus7294'
+      };
+      
+      const username = instagramUsernames[creatorUsername];
+      if (username) {
+        window.open(`https://instagram.com/${username}`, '_blank');
+      }
+    }
+
+    // Login form handler
     document.getElementById('loginForm').addEventListener('submit', async function(event) {
       event.preventDefault();
       
@@ -227,7 +370,8 @@
         if (data.success) {
           // Login exitoso - guardar datos del usuario si es necesario
           if (data.user) {
-            localStorage.setItem('user', JSON.stringify(data.user));
+            // Usar variables JavaScript en lugar de localStorage
+            window.currentUser = data.user;
           }
           
           // Mostrar mensaje de éxito
@@ -250,6 +394,17 @@
         submitButton.textContent = originalText;
         submitButton.disabled = false;
       }
+    });
+
+    // Efecto de entrada suave para los creadores
+    window.addEventListener('load', function() {
+      const creatorCards = document.querySelectorAll('.creator-card');
+      creatorCards.forEach((card, index) => {
+        setTimeout(() => {
+          card.style.opacity = '1';
+          card.style.transform = 'translateY(0)';
+        }, index * 200);
+      });
     });
   </script>
 </body>

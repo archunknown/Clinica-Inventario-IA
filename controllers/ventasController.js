@@ -6,7 +6,7 @@ class VentasController {
     // Crear una nueva venta
     static async crearVenta(req, res) {
         try {
-            const { items, usuario_id } = req.body;
+            const { items, usuario_id, cliente } = req.body;
 
             // Validar datos requeridos
             if (!items || !Array.isArray(items) || items.length === 0) {
@@ -22,6 +22,54 @@ class VentasController {
                     message: 'Usuario requerido'
                 });
             }
+
+            // Manejar cliente si se proporciona
+            let cliente_id = null;
+            console.log('=== PROCESANDO CLIENTE ==='); // LOG DE DEPURACIÓN
+            console.log('Datos del cliente recibidos:', JSON.stringify(cliente, null, 2)); // LOG DE DEPURACIÓN
+            
+            if (cliente && cliente.dni) {
+                const ClienteModel = require('../models/clienteModel');
+                
+                try {
+                    // Buscar si el cliente ya existe
+                    console.log('Buscando cliente con DNI:', cliente.dni); // LOG DE DEPURACIÓN
+                    let clienteExistente = await ClienteModel.buscarPorDNI(cliente.dni);
+                    console.log('Resultado de búsqueda:', clienteExistente); // LOG DE DEPURACIÓN
+                    
+                    if (!clienteExistente) {
+                        // Crear nuevo cliente
+                        console.log('Cliente no existe, creando nuevo...'); // LOG DE DEPURACIÓN
+                        const datosNuevoCliente = {
+                            dni: cliente.dni,
+                            nombre: cliente.nombre,
+                            apellido_paterno: cliente.apellido_paterno,
+                            apellido_materno: cliente.apellido_materno
+                        };
+                        console.log('Datos para crear cliente:', JSON.stringify(datosNuevoCliente, null, 2)); // LOG DE DEPURACIÓN
+                        
+                        clienteExistente = await ClienteModel.crear(datosNuevoCliente);
+                        console.log('Cliente creado exitosamente:', clienteExistente); // LOG DE DEPURACIÓN
+                    } else {
+                        console.log('Cliente ya existe, usando el existente'); // LOG DE DEPURACIÓN
+                    }
+                    
+                    cliente_id = clienteExistente.id;
+                    console.log('Cliente ID asignado a la venta:', cliente_id); // LOG DE DEPURACIÓN
+                } catch (errorCliente) {
+                    console.error('ERROR al procesar cliente:', errorCliente); // LOG DE DEPURACIÓN
+                    console.error('Detalles del error:', {
+                        message: errorCliente.message,
+                        code: errorCliente.code,
+                        detail: errorCliente.detail
+                    });
+                    // No lanzamos el error para que la venta pueda continuar sin cliente
+                    console.log('La venta continuará sin cliente debido al error'); // LOG DE DEPURACIÓN
+                }
+            } else {
+                console.log('No se proporcionaron datos de cliente o falta DNI'); // LOG DE DEPURACIÓN
+            }
+            console.log('=== FIN PROCESAMIENTO CLIENTE ==='); // LOG DE DEPURACIÓN
 
             // Verificar stock disponible
             const verificacionStock = await VentaModel.verificarStock(items);
@@ -59,6 +107,7 @@ class VentasController {
             // Crear la venta
             const ventaData = {
                 usuario_id: parseInt(usuario_id),
+                cliente_id: cliente_id,
                 total: total,
                 items: itemsConPrecios
             };
@@ -72,7 +121,8 @@ class VentasController {
                     venta_id: resultado.venta_id,
                     total: total,
                     fecha: resultado.fecha,
-                    items: itemsConPrecios.length
+                    items: itemsConPrecios.length,
+                    cliente: cliente_id ? cliente : null
                 }
             });
 
@@ -255,6 +305,21 @@ class VentasController {
                     subtotal: parseFloat(detalle.subtotal)
                 }))
             };
+
+            // Agregar datos del cliente si existe
+            if (venta.cliente_id) {
+                const ClienteModel = require('../models/clienteModel');
+                const cliente = await ClienteModel.buscarPorId(venta.cliente_id);
+                if (cliente) {
+                    ventaData.cliente = {
+                        dni: cliente.dni,
+                        nombre: cliente.nombre,
+                        apellido_paterno: cliente.apellido_paterno,
+                        apellido_materno: cliente.apellido_materno,
+                        nombre_completo: `${cliente.nombre || ''} ${cliente.apellido_paterno || ''} ${cliente.apellido_materno || ''}`.trim()
+                    };
+                }
+            }
 
             // Generar PDF
             const pdfBuffer = await PDFService.generarBoletaPDF(ventaData);
