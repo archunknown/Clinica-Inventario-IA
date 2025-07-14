@@ -5,7 +5,13 @@
   "main": "app.js",
   "scripts": {
     "start": "node app.js",
-    "dev": "node app.js"
+    "dev": "node app.js",
+    "init-db": "node init_db.js",
+    "hash-password": "node scripts/hash-password.js",
+    "test-db": "node test_db.js"
+  },
+  "engines": {
+    "node": ">=14.0.0"
   },
   "dependencies": {
     "bcrypt": "^5.1.1",
