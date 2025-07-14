@@ -1,6 +1,7 @@
 const VentaModel = require('../models/ventaModel');
 const MedicamentoModel = require('../models/medicamentoModel');
-const PDFService = require('../services/pdfService');
+// Usar servicio alternativo que no requiere Puppeteer
+const PDFServiceAlternative = require('../services/pdfServiceAlternative');
 
 class VentasController {
     // Crear una nueva venta
@@ -330,19 +331,17 @@ class VentasController {
                 console.log('No hay cliente_id en la venta'); // LOG DE DEPURACIÓN
             }
 
-            // Generar PDF
-            const pdfBuffer = await PDFService.generarBoletaPDF(ventaData);
+            // Generar HTML para boleta (método alternativo sin Puppeteer)
+            const htmlContent = await PDFServiceAlternative.generarBoletaHTML(ventaData);
 
-            // Configurar headers para descarga
-            res.setHeader('Content-Type', 'application/pdf');
-            res.setHeader('Content-Disposition', `attachment; filename="boleta-${String(venta.id).padStart(6, '0')}.pdf"`);
-            res.setHeader('Content-Length', pdfBuffer.length);
+            // Configurar headers para mostrar HTML
+            res.setHeader('Content-Type', 'text/html; charset=utf-8');
             res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
             res.setHeader('Pragma', 'no-cache');
             res.setHeader('Expires', '0');
 
-            // Enviar PDF
-            res.end(pdfBuffer, 'binary');
+            // Enviar HTML que el usuario puede imprimir como PDF
+            res.send(htmlContent);
 
         } catch (error) {
             console.error('Error al generar PDF:', error);
