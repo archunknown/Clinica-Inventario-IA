@@ -376,10 +376,12 @@
         const data = await response.json();
 
         if (data.success) {
-          // Login exitoso - guardar datos del usuario si es necesario
+          // Login exitoso - guardar datos del usuario
           if (data.user) {
-            // Usar variables JavaScript en lugar de localStorage
+            // Guardar en AMBOS lugares para máxima compatibilidad
             window.currentUser = data.user;
+            localStorage.setItem('user', JSON.stringify(data.user));
+            console.log('✅ Usuario guardado en localStorage:', data.user);
           }
 
           // Mostrar mensaje de éxito

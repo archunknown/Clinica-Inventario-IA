@@ -31,24 +31,61 @@ document.addEventListener('DOMContentLoaded', function() {
 
 // Cargar datos del usuario desde localStorage
 function cargarUsuario() {
+    console.log('🔍 Iniciando cargarUsuario()...');
+    
     // Primero intentar obtener de localStorage
     const userData = localStorage.getItem('user');
+    console.log('📦 localStorage user:', userData);
+    
     if (userData) {
-        usuario = JSON.parse(userData);
-    } else if (window.currentUser) {
-        // Si no está en localStorage, intentar obtener de window.currentUser
+        try {
+            usuario = JSON.parse(userData);
+            console.log('✅ Usuario cargado desde localStorage:', usuario);
+        } catch (error) {
+            console.error('❌ Error al parsear usuario de localStorage:', error);
+            localStorage.removeItem('user'); // Limpiar dato corrupto
+        }
+    } 
+    
+    // Si no hay en localStorage, intentar window.currentUser
+    if (!usuario && window.currentUser) {
+        console.log('🔄 Intentando cargar desde window.currentUser:', window.currentUser);
         usuario = window.currentUser;
         // Guardar en localStorage para futuras sesiones
         localStorage.setItem('user', JSON.stringify(usuario));
-    } else {
-        // Solo redirigir si realmente no hay usuario
-        console.warn('No se encontró usuario autenticado');
-        // Dar un pequeño delay para evitar redirecciones accidentales
+        console.log('💾 Usuario guardado en localStorage');
+    }
+    
+    // Verificar todas las posibles fuentes de usuario
+    console.log('🔍 Estado final:');
+    console.log('  - usuario:', usuario);
+    console.log('  - window.currentUser:', window.currentUser);
+    console.log('  - localStorage.user:', localStorage.getItem('user'));
+    
+    if (!usuario) {
+        console.warn('⚠️ No se encontró usuario autenticado');
+        console.log('🔄 Esperando 500ms antes de redirigir...');
+        
+        // Dar más tiempo para que se cargue el usuario
         setTimeout(() => {
-            if (!usuario && !window.currentUser) {
+            // Verificar una vez más
+            const finalCheck = localStorage.getItem('user') || window.currentUser;
+            console.log('🔍 Verificación final:', finalCheck);
+            
+            if (!finalCheck) {
+                console.error('❌ Redirigiendo al login - No hay usuario');
                 window.location.href = '/views/login.html';
+            } else {
+                console.log('✅ Usuario encontrado en verificación final');
+                if (!usuario && window.currentUser) {
+                    usuario = window.currentUser;
+                } else if (!usuario && localStorage.getItem('user')) {
+                    usuario = JSON.parse(localStorage.getItem('user'));
+                }
             }
-        }, 100);
+        }, 500); // Aumentar el delay a 500ms
+    } else {
+        console.log('✅ Usuario autenticado correctamente');
     }
 }
 
