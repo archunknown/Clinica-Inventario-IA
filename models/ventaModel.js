@@ -23,15 +23,19 @@ class VentaModel {
 
             // Insertar los detalles de la venta
             for (const item of ventaData.items) {
+                // Calcular precio unitario
+                const precioUnitario = item.subtotal / item.cantidad;
+                
                 const detalleQuery = `
-                    INSERT INTO detalle_venta (venta_id, medicamento_id, cantidad, subtotal)
-                    VALUES ($1, $2, $3, $4)
+                    INSERT INTO detalle_venta (venta_id, medicamento_id, cantidad, subtotal, precio_unitario)
+                    VALUES ($1, $2, $3, $4, $5)
                 `;
                 await client.query(detalleQuery, [
                     ventaId,
                     item.medicamento_id,
                     item.cantidad,
-                    item.subtotal
+                    item.subtotal,
+                    precioUnitario
                 ]);
 
                 // Actualizar el stock del medicamento
