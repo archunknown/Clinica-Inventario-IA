@@ -69,8 +69,8 @@ class PDFService {
             <tr>
                 <td style="padding: 12px; border-bottom: 1px solid #e0e0e0;">${item.nombre}</td>
                 <td style="padding: 12px; border-bottom: 1px solid #e0e0e0; text-align: center;">${item.cantidad}</td>
-                <td style="padding: 12px; border-bottom: 1px solid #e0e0e0; text-align: right;">$${item.precio_unitario.toFixed(2)}</td>
-                <td style="padding: 12px; border-bottom: 1px solid #e0e0e0; text-align: right; font-weight: bold;">$${item.subtotal.toFixed(2)}</td>
+                <td style="padding: 12px; border-bottom: 1px solid #e0e0e0; text-align: right;">S/${item.precio_unitario.toFixed(2)}</td>
+                <td style="padding: 12px; border-bottom: 1px solid #e0e0e0; text-align: right; font-weight: bold;">S/${item.subtotal.toFixed(2)}</td>
             </tr>
         `).join('');
 
@@ -247,7 +247,7 @@ class PDFService {
             <div class="boleta-container">
                 <!-- Header -->
                 <div class="header">
-                    <div class="logo">🏥 CLÍNICA INVENTARIO</div>
+                    <div class="logo">🏥 Farmacia Arch FIK</div>
                     <div class="empresa-info">
                         Sistema de Gestión Médica<br>
                         RUC: 20123456789 | Tel: (01) 234-5678<br>
@@ -322,19 +322,19 @@ class PDFService {
                 <div class="totales">
                     <div class="total-item">
                         <span>Subtotal:</span>
-                        <span>$${ventaData.total.toFixed(2)}</span>
+                        <span>S/${ventaData.total.toFixed(2)}</span>
                     </div>
                     <div class="total-item">
                         <span>IGV (18%):</span>
-                        <span>$${(ventaData.total * 0.18).toFixed(2)}</span>
+                        <span>S/${(ventaData.total * 0.18).toFixed(2)}</span>
                     </div>
                     <div class="total-item">
                         <span>Descuento:</span>
-                        <span>$0.00</span>
+                        <span>S/0.00</span>
                     </div>
                     <div class="total-item total-final">
                         <span>TOTAL A PAGAR:</span>
-                        <span>$${(ventaData.total * 1.18).toFixed(2)}</span>
+                        <span>S/${(ventaData.total * 1.18).toFixed(2)}</span>
                     </div>
                 </div>
                 

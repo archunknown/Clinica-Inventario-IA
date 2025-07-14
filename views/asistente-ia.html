@@ -1,9 +1,13 @@
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Asistente IA - Sistema de Gestión Clínica</title>
+    <link rel="icon" href="/img/logo.png">
+    <link rel="shortcut icon" type="image/png" href="/img/logo.png">
+    <link rel="apple-touch-icon" href="/public/img/logo.png">
     <link rel="stylesheet" href="/css/styles.css">
     <style>
         /* Estilos específicos para el asistente IA */
@@ -212,9 +216,13 @@
         }
 
         @keyframes typing {
-            0%, 60%, 100% {
+
+            0%,
+            60%,
+            100% {
                 transform: translateY(0);
             }
+
             30% {
                 transform: translateY(-10px);
             }
@@ -311,6 +319,7 @@
         }
     </style>
 </head>
+
 <body>
     <div class="main-layout">
         <!-- Sidebar -->
@@ -318,7 +327,7 @@
             <div class="logo">
                 <div class="logo-icon">CI</div>
                 <div class="logo-text">
-                    <h2>Clínica Inventario</h2>
+                    <h2>Arch FIK Farmacia</h2>
                     <p>Sistema de Gestión</p>
                 </div>
             </div>
@@ -354,8 +363,11 @@
                 </a>
             </nav>
 
-            <div class="user-profile" style="margin-top: auto; display: flex; align-items: center; gap: 15px; padding: 20px; background: var(--color3); border-radius: 12px;">
-                <div class="user-avatar" style="width: 45px; height: 45px; background: var(--color5); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold;">U</div>
+            <div class="user-profile"
+                style="margin-top: auto; display: flex; align-items: center; gap: 15px; padding: 20px; background: var(--color3); border-radius: 12px;">
+                <div class="user-avatar"
+                    style="width: 45px; height: 45px; background: var(--color5); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold;">
+                    U</div>
                 <div>
                     <div style="font-weight: 600;">Usuario</div>
                     <div style="font-size: 0.85rem; color: var(--text-muted);">Administrador</div>
@@ -398,16 +410,20 @@
                             <p>Puedo ayudarte a consultar el inventario de medicamentos de forma natural.</p>
                             <p>Prueba preguntándome:</p>
                             <div class="quick-actions">
-                                <button class="quick-action-btn" onclick="enviarPreguntaRapida('¿Qué medicamentos hay para la gripe?')">
+                                <button class="quick-action-btn"
+                                    onclick="enviarPreguntaRapida('¿Qué medicamentos hay para la gripe?')">
                                     ¿Medicamentos para la gripe?
                                 </button>
-                                <button class="quick-action-btn" onclick="enviarPreguntaRapida('¿Hay amoxicilina disponible?')">
+                                <button class="quick-action-btn"
+                                    onclick="enviarPreguntaRapida('¿Hay amoxicilina disponible?')">
                                     ¿Hay amoxicilina?
                                 </button>
-                                <button class="quick-action-btn" onclick="enviarPreguntaRapida('¿Qué analgésicos tienen en stock?')">
+                                <button class="quick-action-btn"
+                                    onclick="enviarPreguntaRapida('¿Qué analgésicos tienen en stock?')">
                                     Analgésicos en stock
                                 </button>
-                                <button class="quick-action-btn" onclick="enviarPreguntaRapida('Muéstrame medicamentos con stock bajo')">
+                                <button class="quick-action-btn"
+                                    onclick="enviarPreguntaRapida('Muéstrame medicamentos con stock bajo')">
                                     Stock bajo
                                 </button>
                             </div>
@@ -415,12 +431,9 @@
                     </div>
 
                     <div class="chat-input-area">
-                        <textarea 
-                            id="chatInput" 
-                            class="chat-input" 
+                        <textarea id="chatInput" class="chat-input"
                             placeholder="Escribe tu pregunta sobre el inventario..."
-                            onkeypress="handleKeyPress(event)"
-                        ></textarea>
+                            onkeypress="handleKeyPress(event)"></textarea>
                         <button id="sendButton" class="send-button" onclick="enviarMensaje()">
                             <span>Enviar</span>
                             <span>➤</span>
@@ -433,13 +446,16 @@
                     <!-- Sugerencias -->
                     <div class="suggestions-card">
                         <h3>💡 Preguntas Sugeridas</h3>
-                        <div class="suggestion-item" onclick="enviarPreguntaRapida('¿Cuántas unidades de paracetamol hay?')">
+                        <div class="suggestion-item"
+                            onclick="enviarPreguntaRapida('¿Cuántas unidades de paracetamol hay?')">
                             ¿Cuántas unidades de paracetamol hay?
                         </div>
-                        <div class="suggestion-item" onclick="enviarPreguntaRapida('¿Qué antibióticos están disponibles?')">
+                        <div class="suggestion-item"
+                            onclick="enviarPreguntaRapida('¿Qué antibióticos están disponibles?')">
                             ¿Qué antibióticos están disponibles?
                         </div>
-                        <div class="suggestion-item" onclick="enviarPreguntaRapida('¿Hay medicamentos para dolor de cabeza?')">
+                        <div class="suggestion-item"
+                            onclick="enviarPreguntaRapida('¿Hay medicamentos para dolor de cabeza?')">
                             ¿Medicamentos para dolor de cabeza?
                         </div>
                         <div class="suggestion-item" onclick="enviarPreguntaRapida('Lista todos los analgésicos')">
@@ -472,7 +488,7 @@
         async function enviarMensaje() {
             const input = document.getElementById('chatInput');
             const mensaje = input.value.trim();
-            
+
             if (!mensaje) return;
 
             // Ocultar mensaje de bienvenida
@@ -483,15 +499,15 @@
 
             // Agregar mensaje del usuario
             agregarMensaje(mensaje, 'user');
-            
+
             // Limpiar input y deshabilitar botón
             input.value = '';
             const sendButton = document.getElementById('sendButton');
             sendButton.disabled = true;
-            
+
             // Mostrar indicador de escritura
             mostrarIndicadorEscritura();
-            
+
             try {
                 // Enviar a la API
                 const response = await fetch('/api/ia/chat', {
@@ -501,19 +517,19 @@
                     },
                     body: JSON.stringify({ prompt: mensaje })
                 });
-                
+
                 const data = await response.json();
-                
+
                 // Remover indicador de escritura
                 removerIndicadorEscritura();
-                
+
                 if (data.success) {
                     agregarMensaje(data.respuesta, 'ai');
                     actualizarContadorConsultas();
                 } else {
                     agregarMensaje(data.respuesta || 'Lo siento, hubo un error al procesar tu consulta.', 'ai');
                 }
-                
+
             } catch (error) {
                 console.error('Error:', error);
                 removerIndicadorEscritura();
@@ -529,10 +545,10 @@
             const chatMessages = document.getElementById('chatMessages');
             const messageDiv = document.createElement('div');
             messageDiv.className = `message ${tipo} fade-in`;
-            
+
             const avatar = tipo === 'user' ? '👤' : '🤖';
             const hora = new Date().toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' });
-            
+
             messageDiv.innerHTML = `
                 <div class="message-avatar">${avatar}</div>
                 <div class="message-content">
@@ -540,7 +556,7 @@
                     <div class="message-time">${hora}</div>
                 </div>
             `;
-            
+
             chatMessages.appendChild(messageDiv);
             chatMessages.scrollTop = chatMessages.scrollHeight;
         }
@@ -618,10 +634,11 @@
         }
 
         // Auto-resize del textarea
-        document.getElementById('chatInput').addEventListener('input', function() {
+        document.getElementById('chatInput').addEventListener('input', function () {
             this.style.height = 'auto';
             this.style.height = Math.min(this.scrollHeight, 150) + 'px';
         });
     </script>
 </body>
+
 </html>

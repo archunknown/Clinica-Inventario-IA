@@ -1,9 +1,13 @@
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Carrito de Compras - Sistema de Gestión Clínica</title>
+    <link rel="icon" href="/img/logo.png">
+    <link rel="shortcut icon" type="image/png" href="/img/logo.png">
+    <link rel="apple-touch-icon" href="/public/img/logo.png">
     <link rel="stylesheet" href="/css/styles.css">
     <style>
         /* Estilos específicos para el carrito */
@@ -368,7 +372,7 @@
             .carrito-grid {
                 grid-template-columns: 1fr;
             }
-            
+
             .carrito-container {
                 padding: 20px;
             }
@@ -426,11 +430,17 @@
         }
 
         @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
         }
     </style>
 </head>
+
 <body>
     <div class="main-layout">
         <!-- Sidebar -->
@@ -438,7 +448,7 @@
             <div class="logo">
                 <div class="logo-icon">CI</div>
                 <div class="logo-text">
-                    <h2>Clínica Inventario</h2>
+                    <h2>Arch FIK Farmacia</h2>
                     <p>Sistema de Gestión</p>
                 </div>
             </div>
@@ -474,8 +484,11 @@
                 </a>
             </nav>
 
-            <div class="user-profile" style="margin-top: auto; display: flex; align-items: center; gap: 15px; padding: 20px; background: var(--color3); border-radius: 12px;">
-                <div class="user-avatar" style="width: 45px; height: 45px; background: var(--color5); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold;">U</div>
+            <div class="user-profile"
+                style="margin-top: auto; display: flex; align-items: center; gap: 15px; padding: 20px; background: var(--color3); border-radius: 12px;">
+                <div class="user-avatar"
+                    style="width: 45px; height: 45px; background: var(--color5); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold;">
+                    U</div>
                 <div>
                     <div style="font-weight: 600;">Usuario</div>
                     <div style="font-size: 0.85rem; color: var(--text-muted);">Administrador</div>
@@ -508,7 +521,8 @@
                 <!-- Buscador de productos (inicialmente oculto) -->
                 <div class="buscar-productos" id="buscadorProductos" style="display: none;">
                     <h3 style="margin-bottom: 15px; color: var(--text-light);">🔍 Buscar Productos</h3>
-                    <input type="text" class="buscar-input" id="buscarInput" placeholder="Buscar medicamentos por nombre o categoría...">
+                    <input type="text" class="buscar-input" id="buscarInput"
+                        placeholder="Buscar medicamentos por nombre o categoría...">
                     <div class="productos-sugeridos" id="productosSugeridos">
                         <!-- Los productos se cargarán aquí dinámicamente -->
                     </div>
@@ -522,7 +536,8 @@
                                 🛒 Mi Carrito
                                 <span class="carrito-contador" id="contadorItems">0 items</span>
                             </div>
-                            <button class="btn btn-danger" onclick="limpiarCarrito()" id="btnLimpiar" style="display: none;">
+                            <button class="btn btn-danger" onclick="limpiarCarrito()" id="btnLimpiar"
+                                style="display: none;">
                                 🗑️ Limpiar Todo
                             </button>
                         </div>
@@ -600,4 +615,5 @@
     <!-- Script del Carrito -->
     <script src="/js/carrito.js"></script>
 </body>
+
 </html>

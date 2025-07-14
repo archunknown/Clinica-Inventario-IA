@@ -1,9 +1,13 @@
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Login - Clínica Inventario</title>
+  <title>Login - Farmacia Arch FIK</title>
+  <link rel="icon" href="/img/logo.png">
+  <link rel="shortcut icon" type="image/png" href="/img/logo.png">
+  <link rel="apple-touch-icon" href="/public/img/logo.png">
   <style>
     :root {
       --color1: #060606;
@@ -24,7 +28,8 @@
       font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     }
 
-    body, html {
+    body,
+    html {
       height: 100%;
       background: var(--color2);
       color: var(--text-light);
@@ -42,7 +47,7 @@
       height: 600px;
       border-radius: 15px;
       overflow: hidden;
-      box-shadow: 0 0 30px rgba(0,0,0,0.5);
+      box-shadow: 0 0 30px rgba(0, 0, 0, 0.5);
       background: var(--color1);
       position: relative;
       z-index: 1;
@@ -125,7 +130,7 @@
       background: var(--color3);
       color: var(--text-light);
       font-size: 1rem;
-      box-shadow: inset 0 0 5px rgba(0,0,0,0.5);
+      box-shadow: inset 0 0 5px rgba(0, 0, 0, 0.5);
       transition: background 0.3s ease;
     }
 
@@ -203,7 +208,7 @@
       opacity: 0;
       visibility: hidden;
       transition: all 0.3s ease;
-      box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
       z-index: 20;
     }
 
@@ -293,16 +298,19 @@
     }
   </style>
 </head>
+
 <body>
   <!-- Sección de creadores -->
   <div class="creators-section">
-    <span class="creators-label">Creado por:</span>
+    <span class="creators-label">Desarrollado por:</span>
     <div class="creator-card" onclick="openInstagram('creador1')">
-      <img src="/img/c1.jpg" alt="Creador 1" class="creator-avatar" onerror="this.src='https://via.placeholder.com/60x60/184b71/ffffff?text=AD'">
+      <img src="/img/c1.jpg" alt="Creador 1" class="creator-avatar"
+        onerror="this.src='https://via.placeholder.com/60x60/184b71/ffffff?text=AD'">
       <div class="creator-tooltip">@depor.adrian</div>
     </div>
     <div class="creator-card" onclick="openInstagram('creador2')">
-      <img src="/img/c2.jpg" alt="Creador 2" class="creator-avatar" onerror="this.src='https://via.placeholder.com/60x60/e91e63/ffffff?text=CG'">
+      <img src="/img/c2.jpg" alt="Creador 2" class="creator-avatar"
+        onerror="this.src='https://via.placeholder.com/60x60/e91e63/ffffff?text=CG'">
       <div class="creator-tooltip">@crisgus7294</div>
     </div>
   </div>
@@ -310,12 +318,12 @@
   <div class="container" role="main" aria-label="Formulario de inicio de sesión">
     <div class="left-panel" aria-label="Panel de imagen y bienvenida">
       <div class="left-content">
-        <h1>Hello World.</h1>
-        <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit sed eget aliquet.</p>
+        <h1>Farmacia Arch FIK</h1>
+        <p>Sistema de Gestion de Ventas e Inventario Automatizada con IA</p>
       </div>
     </div>
     <div class="right-panel">
-      <h2>Login</h2>
+      <h2>Iniciar Sesion</h2>
       <form id="loginForm" aria-describedby="loginDesc">
         <label for="username">Usuario</label>
         <input type="text" id="username" name="username" placeholder="Nombre de usuario" required />
@@ -334,7 +342,7 @@
         'creador1': 'depor.adrian',
         'creador2': 'crisgus7294'
       };
-      
+
       const username = instagramUsernames[creatorUsername];
       if (username) {
         window.open(`https://instagram.com/${username}`, '_blank');
@@ -342,19 +350,19 @@
     }
 
     // Login form handler
-    document.getElementById('loginForm').addEventListener('submit', async function(event) {
+    document.getElementById('loginForm').addEventListener('submit', async function (event) {
       event.preventDefault();
-      
+
       // Obtener valores del formulario
       const username = document.getElementById('username').value;
       const password = document.getElementById('password').value;
-      
+
       // Deshabilitar el botón mientras se procesa
       const submitButton = event.target.querySelector('button[type="submit"]');
       const originalText = submitButton.textContent;
       submitButton.textContent = 'Validando...';
       submitButton.disabled = true;
-      
+
       try {
         // Hacer petición al backend
         const response = await fetch('http://localhost:3000/api/auth/login', {
@@ -364,20 +372,20 @@
           },
           body: JSON.stringify({ username, password })
         });
-        
+
         const data = await response.json();
-        
+
         if (data.success) {
           // Login exitoso - guardar datos del usuario si es necesario
           if (data.user) {
             // Usar variables JavaScript en lugar de localStorage
             window.currentUser = data.user;
           }
-          
+
           // Mostrar mensaje de éxito
           submitButton.textContent = '✓ Login exitoso';
           submitButton.style.background = '#4caf50';
-          
+
           // Redirigir al dashboard después de 1 segundo
           setTimeout(() => {
             window.location.href = '/views/dashboard.html';
@@ -397,7 +405,7 @@
     });
 
     // Efecto de entrada suave para los creadores
-    window.addEventListener('load', function() {
+    window.addEventListener('load', function () {
       const creatorCards = document.querySelectorAll('.creator-card');
       creatorCards.forEach((card, index) => {
         setTimeout(() => {
@@ -408,4 +416,5 @@
     });
   </script>
 </body>
+
 </html>
