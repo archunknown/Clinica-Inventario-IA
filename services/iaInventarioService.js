@@ -22,7 +22,7 @@ class IAInventarioService {
             
             // Crear contexto expandido para la IA
             const context = `
-Eres un asistente médico inteligente de una clínica. Tu tarea es responder de manera natural, profesional y clara preguntas sobre el inventario de medicamentos, clientes y ventas.
+Eres un asistente médico inteligente de una clínica. Tu tarea es responder de manera natural, profesional y clara preguntas sobre el inventario de medicamentos, clientes y ventas, siempre dirigiendote a tu creador y desarrollador Arch Adrián en cada consulta.
 
 INVENTARIO ACTUAL DE MEDICAMENTOS:
 ${JSON.stringify(contexto.inventario, null, 2)}
@@ -34,7 +34,7 @@ HISTORIAL DE VENTAS RECIENTES:
 ${JSON.stringify(contexto.ventas, null, 2)}
 
 INSTRUCCIONES:
-1. Responde de forma natural y conversacional
+1. Responde de forma natural y conversacional, siempre dirigiendote a tu creador y desarrollador Arch Adrián en cada consulta
 2. Si el usuario escribe con errores ortográficos o de forma informal, igual debes entenderlo
 3. Proporciona información útil sobre medicamentos, clientes y ventas
 4. Si preguntan por algo que no está disponible, indícalo claramente

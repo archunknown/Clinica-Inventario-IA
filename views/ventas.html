@@ -1,9 +1,13 @@
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Ventas Realizadas - Sistema de Inventario Clínica</title>
+    <link rel="icon" href="/img/logo.png">
+    <link rel="shortcut icon" type="image/png" href="/img/logo.png">
+    <link rel="apple-touch-icon" href="/public/img/logo.png">
     <style>
         :root {
             --color1: #060606;
@@ -21,9 +25,9 @@
             --border-radius: 8px;
             --border-radius-sm: 6px;
             --border-radius-lg: 12px;
-            --shadow-sm: 0 2px 4px rgba(0,0,0,0.1);
-            --shadow-md: 0 4px 15px rgba(0,0,0,0.3);
-            --shadow-lg: 0 8px 25px rgba(0,0,0,0.4);
+            --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.1);
+            --shadow-md: 0 4px 15px rgba(0, 0, 0, 0.3);
+            --shadow-lg: 0 8px 25px rgba(0, 0, 0, 0.4);
             --transition: all 0.3s ease;
         }
 
@@ -48,7 +52,7 @@
             padding: 30px 20px;
             display: flex;
             flex-direction: column;
-            box-shadow: 2px 0 10px rgba(0,0,0,0.3);
+            box-shadow: 2px 0 10px rgba(0, 0, 0, 0.3);
         }
 
         .logo {
@@ -153,7 +157,7 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.3);
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
         }
 
         .header-left h1 {
@@ -452,8 +456,13 @@
         }
 
         @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
         }
 
         .no-ventas {
@@ -518,7 +527,7 @@
             top: 0;
             width: 100%;
             height: 100%;
-            background-color: rgba(0,0,0,0.7);
+            background-color: rgba(0, 0, 0, 0.7);
         }
 
         .modal-content {
@@ -690,13 +699,14 @@
         }
     </style>
 </head>
+
 <body>
     <!-- Sidebar -->
     <aside class="sidebar">
         <div class="logo">
             <div class="logo-icon">CI</div>
             <div class="logo-text">
-                <h2>Clínica Inventario</h2>
+                <h2>Arch FIK Farmacia</h2>
                 <p>Sistema de Gestión</p>
             </div>
         </div>
@@ -764,7 +774,7 @@
         <!-- Contenido de Ventas -->
         <div class="ventas-content">
             <!-- Filtros -->
-            <div class="filtros-section">
+            <!-- <div class="filtros-section">
                 <div class="filtros-title">
                     🔍 Filtros de Búsqueda
                 </div>
@@ -818,7 +828,7 @@
                         🔍 Buscar Ventas
                     </button>
                 </div>
-            </div>
+            </div> -->
 
             <!-- Estadísticas -->
             <div class="estadisticas-section">
@@ -846,12 +856,12 @@
                     <h3>📋 Listado de Ventas</h3>
                     <span id="total-resultados">0 resultados</span>
                 </div>
-                
+
                 <div id="loading" class="loading" style="display: none;">
                     <div style="font-size: 2rem; margin-bottom: 15px;">⏳</div>
                     <p>Cargando ventas...</p>
                 </div>
-                
+
                 <div id="tabla-container">
                     <table class="ventas-table">
                         <thead>
@@ -869,13 +879,13 @@
                         </tbody>
                     </table>
                 </div>
-                
+
                 <div id="no-ventas" class="no-ventas" style="display: none;">
                     <div style="font-size: 4rem; margin-bottom: 20px;">📋</div>
                     <h3>No se encontraron ventas</h3>
                     <p>No hay ventas que coincidan con los filtros seleccionados</p>
                 </div>
-                
+
                 <div class="pagination" id="pagination">
                     <!-- La paginación se generará dinámicamente -->
                 </div>
@@ -917,7 +927,7 @@
                         <span id="detalle-total"></span>
                     </div>
                 </div>
-                
+
                 <div class="productos-detalle">
                     <h4>💊 Productos Vendidos</h4>
                     <div id="productos-lista">
@@ -936,7 +946,7 @@
         const itemsPorPagina = 10;
 
         // Inicializar página
-        document.addEventListener('DOMContentLoaded', function() {
+        document.addEventListener('DOMContentLoaded', function () {
             cargarVentas();
             cargarUsuarios();
             configurarFechasDefault();
@@ -947,7 +957,7 @@
             const hoy = new Date();
             const hace30Dias = new Date();
             hace30Dias.setDate(hoy.getDate() - 30);
-            
+
             document.getElementById('filtro-fecha-inicio').value = hace30Dias.toISOString().split('T')[0];
             document.getElementById('filtro-fecha-fin').value = hoy.toISOString().split('T')[0];
         }
@@ -959,7 +969,7 @@
                 // Por ahora usamos datos de ejemplo
                 const selectUsuario = document.getElementById('filtro-usuario');
                 const usuarios = ['admin', 'vendedor1', 'vendedor2']; // Ejemplo
-                
+
                 usuarios.forEach(usuario => {
                     const option = document.createElement('option');
                     option.value = usuario;
@@ -974,11 +984,11 @@
         // Cargar ventas desde la API
         async function cargarVentas() {
             mostrarLoading(true);
-            
+
             try {
                 const response = await fetch('/api/ventas');
                 const data = await response.json();
-                
+
                 if (data.success) {
                     ventasData = data.data;
                     aplicarFiltrosYMostrar();
@@ -1030,7 +1040,7 @@
             document.getElementById('filtro-monto-min').value = '';
             document.getElementById('filtro-monto-max').value = '';
             document.getElementById('filtro-usuario').value = '';
-            
+
             filtrosActivos = {};
             paginaActual = 1;
             configurarFechasDefault();
@@ -1043,7 +1053,7 @@
 
             // Aplicar filtros
             if (filtrosActivos.fechaInicio) {
-                ventasFiltradas = ventasFiltradas.filter(venta => 
+                ventasFiltradas = ventasFiltradas.filter(venta =>
                     new Date(venta.fecha) >= new Date(filtrosActivos.fechaInicio)
                 );
             }
@@ -1051,7 +1061,7 @@
             if (filtrosActivos.fechaFin) {
                 const fechaFin = new Date(filtrosActivos.fechaFin);
                 fechaFin.setHours(23, 59, 59, 999);
-                ventasFiltradas = ventasFiltradas.filter(venta => 
+                ventasFiltradas = ventasFiltradas.filter(venta =>
                     new Date(venta.fecha) <= fechaFin
                 );
             }
@@ -1061,19 +1071,19 @@
             }
 
             if (filtrosActivos.montoMin > 0) {
-                ventasFiltradas = ventasFiltradas.filter(venta => 
+                ventasFiltradas = ventasFiltradas.filter(venta =>
                     parseFloat(venta.total) >= filtrosActivos.montoMin
                 );
             }
 
             if (filtrosActivos.montoMax < Infinity) {
-                ventasFiltradas = ventasFiltradas.filter(venta => 
+                ventasFiltradas = ventasFiltradas.filter(venta =>
                     parseFloat(venta.total) <= filtrosActivos.montoMax
                 );
             }
 
             if (filtrosActivos.usuario) {
-                ventasFiltradas = ventasFiltradas.filter(venta => 
+                ventasFiltradas = ventasFiltradas.filter(venta =>
                     venta.usuario_nombre && venta.usuario_nombre.toLowerCase().includes(filtrosActivos.usuario.toLowerCase())
                 );
             }
@@ -1086,10 +1096,10 @@
         function filtrarPorPeriodo(ventas, periodo) {
             const hoy = new Date();
             const inicioHoy = new Date(hoy.getFullYear(), hoy.getMonth(), hoy.getDate());
-            
+
             switch (periodo) {
                 case 'hoy':
-                    return ventas.filter(venta => 
+                    return ventas.filter(venta =>
                         new Date(venta.fecha) >= inicioHoy
                     );
                 case 'ayer':
@@ -1102,17 +1112,17 @@
                 case 'semana':
                     const inicioSemana = new Date(inicioHoy);
                     inicioSemana.setDate(inicioHoy.getDate() - inicioHoy.getDay());
-                    return ventas.filter(venta => 
+                    return ventas.filter(venta =>
                         new Date(venta.fecha) >= inicioSemana
                     );
                 case 'mes':
                     const inicioMes = new Date(hoy.getFullYear(), hoy.getMonth(), 1);
-                    return ventas.filter(venta => 
+                    return ventas.filter(venta =>
                         new Date(venta.fecha) >= inicioMes
                     );
                 case 'año':
                     const inicioAño = new Date(hoy.getFullYear(), 0, 1);
-                    return ventas.filter(venta => 
+                    return ventas.filter(venta =>
                         new Date(venta.fecha) >= inicioAño
                     );
                 default:
@@ -1242,7 +1252,7 @@
             const totalVentas = ventas.length;
             const totalIngresos = ventas.reduce((sum, venta) => sum + parseFloat(venta.total), 0);
             const promedioVenta = totalVentas > 0 ? totalIngresos / totalVentas : 0;
-            
+
             // Ventas de hoy
             const hoy = new Date();
             const inicioHoy = new Date(hoy.getFullYear(), hoy.getMonth(), hoy.getDate());
@@ -1262,7 +1272,7 @@
 
                 if (data.success) {
                     const venta = data.data;
-                    
+
                     // Llenar modal con datos
                     document.getElementById('detalle-id').textContent = `#${String(venta.id).padStart(6, '0')}`;
                     document.getElementById('detalle-fecha').textContent = formatearFecha(venta.fecha);
@@ -1302,7 +1312,7 @@
         async function descargarBoleta(ventaId) {
             try {
                 const response = await fetch(`/api/ventas/${ventaId}/pdf`);
-                
+
                 if (response.ok) {
                     const blob = await response.blob();
                     const url = window.URL.createObjectURL(blob);
@@ -1328,7 +1338,7 @@
         }
 
         // Cerrar modal al hacer clic fuera
-        window.onclick = function(event) {
+        window.onclick = function (event) {
             const modal = document.getElementById('modal-detalle');
             if (event.target === modal) {
                 modal.style.display = 'none';
@@ -1341,7 +1351,7 @@
         }
 
         // Manejar cambio en filtro de período
-        document.getElementById('filtro-periodo').addEventListener('change', function() {
+        document.getElementById('filtro-periodo').addEventListener('change', function () {
             if (this.value) {
                 // Limpiar fechas manuales cuando se selecciona un período
                 document.getElementById('filtro-fecha-inicio').value = '';
@@ -1350,17 +1360,18 @@
         });
 
         // Manejar cambio en fechas manuales
-        document.getElementById('filtro-fecha-inicio').addEventListener('change', function() {
+        document.getElementById('filtro-fecha-inicio').addEventListener('change', function () {
             if (this.value) {
                 document.getElementById('filtro-periodo').value = '';
             }
         });
 
-        document.getElementById('filtro-fecha-fin').addEventListener('change', function() {
+        document.getElementById('filtro-fecha-fin').addEventListener('change', function () {
             if (this.value) {
                 document.getElementById('filtro-periodo').value = '';
             }
         });
     </script>
 </body>
+
 </html>

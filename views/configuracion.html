@@ -1,9 +1,13 @@
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Configuración - Sistema de Inventario Clínica</title>
+    <link rel="icon" href="/img/logo.png">
+    <link rel="shortcut icon" type="image/png" href="/img/logo.png">
+    <link rel="apple-touch-icon" href="/public/img/logo.png">
     <style>
         :root {
             --color1: #060606;
@@ -41,7 +45,7 @@
             padding: 30px 20px;
             display: flex;
             flex-direction: column;
-            box-shadow: 2px 0 10px rgba(0,0,0,0.3);
+            box-shadow: 2px 0 10px rgba(0, 0, 0, 0.3);
         }
 
         .logo {
@@ -146,7 +150,7 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.3);
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
         }
 
         .header-left h1 {
@@ -207,13 +211,13 @@
             background: var(--color2);
             padding: 30px;
             border-radius: 15px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
             transition: all 0.3s ease;
         }
 
         .config-card:hover {
             transform: translateY(-2px);
-            box-shadow: 0 8px 25px rgba(0,0,0,0.4);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.4);
         }
 
         .card-header {
@@ -428,25 +432,55 @@
         }
 
         /* Iconos simulados con caracteres Unicode */
-        .icon-dashboard::before { content: "📊"; }
-        .icon-inventory::before { content: "📦"; }
-        .icon-sales::before { content: "💰"; }
-        .icon-cart::before { content: "🛒"; }
-        .icon-ai::before { content: "🤖"; }
-        .icon-settings::before { content: "⚙️"; }
-        .icon-logout::before { content: "🚪"; }
-        .icon-user::before { content: "👤"; }
-        .icon-lock::before { content: "🔒"; }
-        .icon-save::before { content: "💾"; }
+        .icon-dashboard::before {
+            content: "📊";
+        }
+
+        .icon-inventory::before {
+            content: "📦";
+        }
+
+        .icon-sales::before {
+            content: "💰";
+        }
+
+        .icon-cart::before {
+            content: "🛒";
+        }
+
+        .icon-ai::before {
+            content: "🤖";
+        }
+
+        .icon-settings::before {
+            content: "⚙️";
+        }
+
+        .icon-logout::before {
+            content: "🚪";
+        }
+
+        .icon-user::before {
+            content: "👤";
+        }
+
+        .icon-lock::before {
+            content: "🔒";
+        }
+
+        .icon-save::before {
+            content: "💾";
+        }
     </style>
 </head>
+
 <body>
     <!-- Sidebar -->
     <aside class="sidebar">
         <div class="logo">
             <div class="logo-icon">CI</div>
             <div class="logo-text">
-                <h2>Clínica Inventario</h2>
+                <h2>Arch FIK Farmacia</h2>
                 <p>Sistema de Gestión</p>
             </div>
         </div>
@@ -547,7 +581,8 @@
 
                         <div class="info-message">
                             <span>ℹ️</span>
-                            <span>Los datos del perfil son de solo lectura. Contacta al administrador para cambios.</span>
+                            <span>Los datos del perfil son de solo lectura. Contacta al administrador para
+                                cambios.</span>
                         </div>
                     </div>
                 </div>
@@ -564,20 +599,23 @@
 
                     <form id="passwordForm">
                         <div class="alert" id="passwordAlert"></div>
-                        
+
                         <div class="form-group">
                             <label class="form-label" for="currentPassword">Contraseña Actual</label>
-                            <input type="password" id="currentPassword" class="form-input" placeholder="Ingresa tu contraseña actual" required>
+                            <input type="password" id="currentPassword" class="form-input"
+                                placeholder="Ingresa tu contraseña actual" required>
                         </div>
 
                         <div class="form-group">
                             <label class="form-label" for="newPassword">Nueva Contraseña</label>
-                            <input type="password" id="newPassword" class="form-input" placeholder="Ingresa tu nueva contraseña" required>
+                            <input type="password" id="newPassword" class="form-input"
+                                placeholder="Ingresa tu nueva contraseña" required>
                         </div>
 
                         <div class="form-group">
                             <label class="form-label" for="confirmPassword">Confirmar Nueva Contraseña</label>
-                            <input type="password" id="confirmPassword" class="form-input" placeholder="Confirma tu nueva contraseña" required>
+                            <input type="password" id="confirmPassword" class="form-input"
+                                placeholder="Confirma tu nueva contraseña" required>
                         </div>
 
                         <button type="submit" class="form-button">
@@ -595,7 +633,7 @@
         let currentUser = null;
 
         // Cargar datos del usuario al iniciar
-        document.addEventListener('DOMContentLoaded', function() {
+        document.addEventListener('DOMContentLoaded', function () {
             cargarPerfilUsuario();
         });
 
@@ -622,8 +660,8 @@
                 // Usar datos por defecto en caso de error
                 currentUser = {
                     id: 1,
-                    username: 'admin',
-                    rol: 'administrador'
+                    username: 'cajero',
+                    rol: 'Cajero'
                 };
                 actualizarInterfazUsuario(currentUser);
             }
@@ -633,18 +671,18 @@
         function actualizarInterfazUsuario(user) {
             const avatar = user.username.charAt(0).toUpperCase();
             const rolCapitalizado = user.rol.charAt(0).toUpperCase() + user.rol.slice(1);
-            
+
             // Actualizar sidebar
             document.getElementById('sidebarAvatar').textContent = avatar;
             document.getElementById('sidebarUsername').textContent = user.username;
             document.getElementById('sidebarRole').textContent = rolCapitalizado;
-            
+
             // Actualizar perfil principal
             document.getElementById('profileAvatar').textContent = avatar;
             document.getElementById('profileUsername').textContent = user.username;
             document.getElementById('profileRole').textContent = `Rol: ${rolCapitalizado}`;
             document.getElementById('profileId').textContent = user.id;
-            
+
             // Actualizar campos de solo lectura
             document.getElementById('usernameDisplay').textContent = user.username;
             document.getElementById('rolDisplay').textContent = rolCapitalizado;
@@ -652,9 +690,9 @@
         }
 
         // Manejar formulario de contraseña
-        document.getElementById('passwordForm').addEventListener('submit', async function(e) {
+        document.getElementById('passwordForm').addEventListener('submit', async function (e) {
             e.preventDefault();
-            
+
             const currentPassword = document.getElementById('currentPassword').value;
             const newPassword = document.getElementById('newPassword').value;
             const confirmPassword = document.getElementById('confirmPassword').value;
@@ -705,7 +743,7 @@
         function mostrarAlerta(elemento, tipo, mensaje) {
             elemento.className = `alert ${tipo} show`;
             elemento.textContent = mensaje;
-            
+
             // Ocultar después de 5 segundos
             setTimeout(() => {
                 elemento.classList.remove('show');
@@ -713,4 +751,5 @@
         }
     </script>
 </body>
+
 </html>
