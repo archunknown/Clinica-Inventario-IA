@@ -6,10 +6,14 @@ class VentasController {
     // Crear una nueva venta
     static async crearVenta(req, res) {
         try {
+            console.log('=== INICIO CREAR VENTA ===');
+            console.log('Body recibido:', JSON.stringify(req.body, null, 2));
+            
             const { items, usuario_id, cliente } = req.body;
 
             // Validar datos requeridos
             if (!items || !Array.isArray(items) || items.length === 0) {
+                console.log('ERROR: No hay items en la venta');
                 return res.status(400).json({
                     success: false,
                     message: 'Debe proporcionar al menos un item para la venta'
@@ -17,11 +21,14 @@ class VentasController {
             }
 
             if (!usuario_id) {
+                console.log('ERROR: No hay usuario_id');
                 return res.status(400).json({
                     success: false,
                     message: 'Usuario requerido'
                 });
             }
+
+            console.log(`Procesando venta con ${items.length} items para usuario_id: ${usuario_id}`);
 
             // Manejar cliente si se proporciona
             let cliente_id = null;

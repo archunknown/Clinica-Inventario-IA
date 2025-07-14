@@ -53,6 +53,14 @@ class VentaModel {
         } catch (error) {
             await client.query('ROLLBACK');
             console.error('Error al crear venta:', error);
+            console.error('Detalles del error:', {
+                message: error.message,
+                code: error.code,
+                detail: error.detail,
+                table: error.table,
+                constraint: error.constraint,
+                stack: error.stack
+            });
             throw error;
         } finally {
             client.release();
