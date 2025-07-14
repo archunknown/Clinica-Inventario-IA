@@ -42,6 +42,18 @@ app.use('/api/ventas', ventasRoutes);
 app.use('/api/config', configRoutes);
 app.use('/api/dashboard', dashboardRoutes);
 
+// Endpoint temporal para debug (ELIMINAR EN PRODUCCIÓN)
+app.get('/api/test-env', (req, res) => {
+    res.json({
+        hasApiKey: !!process.env.OPENROUTER_API_KEY,
+        keyLength: process.env.OPENROUTER_API_KEY ? process.env.OPENROUTER_API_KEY.length : 0,
+        nodeEnv: process.env.NODE_ENV,
+        keyPreview: process.env.OPENROUTER_API_KEY ? 
+            process.env.OPENROUTER_API_KEY.substring(0, 10) + '...' : 
+            'NO KEY FOUND'
+    });
+});
+
 // Manejo de errores
 app.use((err, req, res, next) => {
     console.error(err.stack);
