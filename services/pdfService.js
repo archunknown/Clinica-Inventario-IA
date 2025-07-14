@@ -6,7 +6,12 @@ class PDFService {
     static async generarBoletaPDF(ventaData) {
         let browser;
         try {
-            browser = await puppeteer.launch({
+            console.log('Iniciando generación de PDF...');
+            console.log('Entorno:', process.env.NODE_ENV);
+            console.log('Ejecutable de Chrome:', process.env.PUPPETEER_EXECUTABLE_PATH);
+            
+            // Configuración de Puppeteer
+            const puppeteerConfig = {
                 headless: 'new',
                 args: [
                     '--no-sandbox', 
@@ -15,9 +20,18 @@ class PDFService {
                     '--disable-accelerated-2d-canvas',
                     '--no-first-run',
                     '--no-zygote',
+                    '--single-process',
                     '--disable-gpu'
                 ]
-            });
+            };
+
+            // Si estamos en Render, usar el Chrome instalado
+            if (process.env.PUPPETEER_EXECUTABLE_PATH) {
+                puppeteerConfig.executablePath = process.env.PUPPETEER_EXECUTABLE_PATH;
+                console.log('Usando Chrome instalado en:', puppeteerConfig.executablePath);
+            }
+
+            browser = await puppeteer.launch(puppeteerConfig);
 
             const page = await browser.newPage();
             
