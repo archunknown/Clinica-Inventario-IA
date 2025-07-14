@@ -81,8 +81,9 @@ async function initDB() {
     // Insertar usuario admin (contraseña: admin123)
     const result = await pool.query(`
       INSERT INTO usuarios (username, password, rol) 
-      VALUES ('admin', '$2b$10$YKpVH5.NlGgKHkLrKxXXOuWqJqFZHsYoQrXuBVpAqzV7EZT9XyXXy', 'administrador')
-      ON CONFLICT (username) DO NOTHING
+      VALUES ('admin', '$2b$10$csK7oydEWQstkD7k2x3V1uISpHXSeN56uNIAHCYmBqiuIST1aiCAy', 'administrador')
+      ON CONFLICT (username) DO UPDATE 
+      SET password = '$2b$10$csK7oydEWQstkD7k2x3V1uISpHXSeN56uNIAHCYmBqiuIST1aiCAy'
       RETURNING id
     `);
     
