@@ -31,12 +31,24 @@ document.addEventListener('DOMContentLoaded', function() {
 
 // Cargar datos del usuario desde localStorage
 function cargarUsuario() {
+    // Primero intentar obtener de localStorage
     const userData = localStorage.getItem('user');
     if (userData) {
         usuario = JSON.parse(userData);
+    } else if (window.currentUser) {
+        // Si no está en localStorage, intentar obtener de window.currentUser
+        usuario = window.currentUser;
+        // Guardar en localStorage para futuras sesiones
+        localStorage.setItem('user', JSON.stringify(usuario));
     } else {
-        // Redirigir al login si no hay usuario
-        window.location.href = '/views/login.html';
+        // Solo redirigir si realmente no hay usuario
+        console.warn('No se encontró usuario autenticado');
+        // Dar un pequeño delay para evitar redirecciones accidentales
+        setTimeout(() => {
+            if (!usuario && !window.currentUser) {
+                window.location.href = '/views/login.html';
+            }
+        }, 100);
     }
 }
 
