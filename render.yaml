@@ -1,0 +1,40 @@
+services:
+  # Web Service
+  - type: web
+    name: clinica-inventario-ia
+    runtime: node
+    buildCommand: npm install
+    startCommand: npm start
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 3000
+      - key: PGHOST
+        fromDatabase:
+          name: clinica-db
+          property: host
+      - key: PGPORT
+        fromDatabase:
+          name: clinica-db
+          property: port
+      - key: PGDATABASE
+        fromDatabase:
+          name: clinica-db
+          property: database
+      - key: PGUSER
+        fromDatabase:
+          name: clinica-db
+          property: user
+      - key: PGPASSWORD
+        fromDatabase:
+          name: clinica-db
+          property: password
+      - key: OPENAI_API_KEY
+        sync: false # Deberás configurar esto manualmente en Render
+
+databases:
+  - name: clinica-db
+    databaseName: clinica_inventario
+    user: clinica_user
+    plan: free # Puedes cambiar a un plan pagado si necesitas más recursos
