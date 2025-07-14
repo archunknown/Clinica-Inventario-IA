@@ -4,9 +4,9 @@
   "description": "Sistema de inventario para clínica con IA",
   "main": "app.js",
   "scripts": {
-    "start": "node app.js",
+    "start": "node scripts/init-db.js && node app.js",
     "dev": "node app.js",
-    "init-db": "node init_db.js",
+    "init-db": "node scripts/init-db.js",
     "hash-password": "node scripts/hash-password.js",
     "test-db": "node test_db.js"
   },
