@@ -386,7 +386,10 @@ function mostrarModalConfirmacion() {
                         <div class="form-row">
                             <div class="form-group">
                                 <label for="cliente-dni">DNI:</label>
-                                <input type="text" id="cliente-dni" class="form-control" placeholder="12345678" maxlength="8" pattern="[0-9]{8}">
+                                <input type="text" id="cliente-dni" class="form-control" placeholder="12345678" maxlength="8" pattern="[0-9]{8}" oninput="buscarDatosPorDNI(this.value)">
+                                <div id="dni-loading" class="dni-loading" style="display: none;">
+                                    <small>🔍 Buscando datos...</small>
+                                </div>
                             </div>
                             <div class="form-group">
                                 <label for="cliente-nombre">Nombres:</label>
@@ -713,6 +716,18 @@ function mostrarModalConfirmacion() {
             text-align: center;
         }
         
+        .dni-loading {
+            margin-top: 5px;
+            color: var(--accent);
+            font-style: italic;
+            animation: pulse 1.5s infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+        
         @keyframes slideIn {
             from {
                 transform: translateY(-50px);
@@ -919,6 +934,129 @@ window.agregarProductoAlCarrito = function(productoId, cantidad = 1) {
     agregarAlCarrito(productoId, cantidad);
 };
 
+// Función para buscar datos por DNI usando la API externa
+let timeoutDNI = null;
+
+async function buscarDatosPorDNI(dni) {
+    // Limpiar timeout anterior
+    if (timeoutDNI) {
+        clearTimeout(timeoutDNI);
+    }
+    
+    // Solo buscar si el DNI tiene 8 dígitos
+    if (dni.length !== 8 || !/^\d{8}$/.test(dni)) {
+        ocultarLoadingDNI();
+        return;
+    }
+    
+    // Mostrar indicador de carga con delay para evitar parpadeos
+    timeoutDNI = setTimeout(() => {
+        mostrarLoadingDNI();
+    }, 300);
+    
+    try {
+        // Usar el endpoint seguro del backend
+        const response = await fetch(`/api/dni/${dni}`, {
+            method: 'GET',
+            headers: { 
+                'Content-Type': 'application/json'
+            },
+        });
+        
+        if (response.ok) {
+            const result = await response.json();
+            
+            if (result.success && result.data) {
+                // Autocompletar los campos con los datos obtenidos
+                const nombreInput = document.getElementById('cliente-nombre');
+                const apellidoPaternoInput = document.getElementById('cliente-apellido-paterno');
+                const apellidoMaternoInput = document.getElementById('cliente-apellido-materno');
+                
+                if (nombreInput) nombreInput.value = result.data.nombres || '';
+                if (apellidoPaternoInput) apellidoPaternoInput.value = result.data.apellido_paterno || '';
+                if (apellidoMaternoInput) apellidoMaternoInput.value = result.data.apellido_materno || '';
+                
+                // Mostrar notificación de éxito
+                mostrarNotificacionDNI('✅ Datos encontrados y completados automáticamente', 'success');
+            } else {
+                // DNI no encontrado o error en la respuesta
+                mostrarNotificacionDNI(result.message || '⚠️ DNI no encontrado en la base de datos', 'warning');
+            }
+        } else {
+            // Error HTTP
+            const errorData = await response.json().catch(() => ({}));
+            mostrarNotificacionDNI(errorData.message || '❌ Error al consultar el DNI', 'error');
+        }
+    } catch (error) {
+        console.error('Error al buscar DNI:', error);
+        mostrarNotificacionDNI('❌ Error de conexión al consultar DNI', 'error');
+    } finally {
+        ocultarLoadingDNI();
+    }
+}
+
+// Mostrar indicador de carga para DNI
+function mostrarLoadingDNI() {
+    const loadingElement = document.getElementById('dni-loading');
+    if (loadingElement) {
+        loadingElement.style.display = 'block';
+    }
+}
+
+// Ocultar indicador de carga para DNI
+function ocultarLoadingDNI() {
+    if (timeoutDNI) {
+        clearTimeout(timeoutDNI);
+        timeoutDNI = null;
+    }
+    
+    const loadingElement = document.getElementById('dni-loading');
+    if (loadingElement) {
+        loadingElement.style.display = 'none';
+    }
+}
+
+// Mostrar notificación específica para DNI
+function mostrarNotificacionDNI(mensaje, tipo) {
+    const notificacion = document.createElement('div');
+    notificacion.className = `notificacion-dni ${tipo}`;
+    notificacion.textContent = mensaje;
+    
+    let estilos = '';
+    switch(tipo) {
+        case 'success':
+            estilos = `background: var(--success); color: white;`;
+            break;
+        case 'warning':
+            estilos = `background: var(--warning); color: white;`;
+            break;
+        case 'error':
+            estilos = `background: var(--danger); color: white;`;
+            break;
+    }
+    
+    notificacion.style.cssText = `
+        position: fixed;
+        top: 80px;
+        right: 20px;
+        padding: 12px 20px;
+        ${estilos}
+        border-radius: 6px;
+        box-shadow: var(--shadow-lg);
+        z-index: 2001;
+        font-size: 0.9rem;
+        animation: slideIn 0.3s ease-out;
+        max-width: 300px;
+    `;
+    
+    document.body.appendChild(notificacion);
+    
+    setTimeout(() => {
+        notificacion.style.animation = 'slideOut 0.3s ease-out forwards';
+        setTimeout(() => notificacion.remove(), 300);
+    }, 3000);
+}
+
 // Exponer funciones globales necesarias
 window.agregarAlCarrito = agregarAlCarrito;
 window.actualizarCantidad = actualizarCantidad;
@@ -929,3 +1067,4 @@ window.mostrarBuscador = mostrarBuscador;
 window.irAInventario = irAInventario;
 window.cerrarModalConfirmacion = cerrarModalConfirmacion;
 window.confirmarVenta = confirmarVenta;
+window.buscarDatosPorDNI = buscarDatosPorDNI;
