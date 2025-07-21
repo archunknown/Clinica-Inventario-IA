@@ -33,6 +33,7 @@ const iaRoutes = require('./routes/iaRoutes');
 const ventasRoutes = require('./routes/ventasRoutes');
 const configRoutes = require('./routes/configRoutes');
 const dashboardRoutes = require('./routes/dashboardRoutes');
+const dniRoutes = require('./routes/dniRoutes');
 
 // Usar rutas
 app.use('/api/auth', authRoutes);
@@ -41,6 +42,7 @@ app.use('/api/ia', iaRoutes);
 app.use('/api/ventas', ventasRoutes);
 app.use('/api/config', configRoutes);
 app.use('/api/dashboard', dashboardRoutes);
+app.use('/api/dni', dniRoutes);
 
 // Endpoint temporal para debug (ELIMINAR EN PRODUCCIÓN)
 app.get('/api/test-env', (req, res) => {
