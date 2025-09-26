@@ -1,5 +1,6 @@
 const fetch = (...args) => import('node-fetch').then(({default: fetch}) => fetch(...args));
 const db = require('../models/db');
+const WeatherService = require('./weatherService');
 
 class IAInventarioService {
     // Obtener el contexto del inventario desde la vista de PostgreSQL
@@ -71,7 +72,7 @@ TIPOS DE CONSULTAS QUE PUEDES RESPONDER:
                     "Content-Type": "application/json"
                 },
                 body: JSON.stringify({
-                    model: "deepseek/deepseek-r1:free",
+                    model: "deepseek/deepseek-chat-v3.1:free",
                     messages: [
                         { role: "system", content: context },
                         { role: "user", content: pregunta }
@@ -179,6 +180,155 @@ TIPOS DE CONSULTAS QUE PUEDES RESPONDER:
     static async analizarInventario() {
         const pregunta = "Analiza el estado actual del inventario: productos con stock bajo, categorías más representadas, y recomendaciones.";
         return await this.procesarConsulta(pregunta);
+    }
+
+    // Obtener recomendaciones basadas en el clima
+    static async obtenerRecomendacionesClima() {
+        try {
+            console.log('OPENROUTER_API_KEY configurada:', process.env.OPENROUTER_API_KEY ? 'Sí' : 'No');
+
+            // Obtener datos del clima actual
+            const clima = await WeatherService.obtenerClimaActual();
+
+            // Obtener contexto del inventario
+            const contextoInventario = await this.obtenerContextoInventario();
+
+            // Crear contexto específico para recomendaciones climáticas
+            const context = `
+Eres un asistente inteligente de una clínica farmacéutica. Tu tarea es generar recomendaciones de productos basadas en las condiciones climáticas actuales.
+
+DATOS DEL CLIMA ACTUAL:
+- Ciudad: ${clima.ciudad}, ${clima.pais}
+- Temperatura: ${clima.temperatura}°C
+- Condición: ${clima.descripcion}
+- Humedad: ${clima.humedad}%
+
+INVENTARIO DISPONIBLE:
+${JSON.stringify(contextoInventario, null, 2)}
+
+INSTRUCCIONES PARA RECOMENDACIONES:
+1. Analiza las condiciones climáticas y sugiere productos apropiados del inventario
+2. Considera enfermedades o necesidades comunes según el clima:
+   - Frío (< 15°C): Resfriados, gripe, analgésicos, jarabes para tos, vitaminas C
+   - Calor (> 25°C): Protector solar, rehidratantes, vitaminas, medicamentos para insolación
+   - Lluvia/humedad alta: Productos para humedad, antifúngicos si aplica
+   - Condiciones normales: Vitaminas generales, analgésicos básicos
+3. Limita las recomendaciones a productos que EXISTAN en el inventario
+4. Proporciona al menos 3 recomendaciones cuando sea posible
+5. Si hay menos de 3 productos relevantes, limita a los disponibles
+6. Incluye solo el nombre del producto, no precios ni stock
+7. Mantén las recomendaciones generales y apropiadas para una farmacia
+8. Responde de forma concisa y directa
+
+FORMATO DE RESPUESTA:
+Lista los productos recomendados separados por comas, por ejemplo: "Paracetamol, Jarabe para la tos, Vitaminas C"
+
+IMPORTANTE: Solo incluye productos que estén disponibles en el inventario proporcionado.
+`;
+
+            // Llamar a OpenRouter API
+            console.log('Enviando consulta a OpenRouter...');
+            const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
+                method: "POST",
+                headers: {
+                    "Authorization": `Bearer ${process.env.OPENROUTER_API_KEY}`,
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({
+                    model: "deepseek/deepseek-r1:free",
+                    messages: [
+                        { role: "system", content: context },
+                        { role: "user", content: `Genera recomendaciones de productos para las condiciones climáticas actuales: ${clima.temperatura}°C, ${clima.descripcion}, humedad ${clima.humedad}%.` }
+                    ],
+                    temperature: 0.7,
+                    max_tokens: 500
+                })
+            });
+
+            console.log('Respuesta de OpenRouter status:', response.status);
+            const data = await response.json();
+            console.log('Respuesta de OpenRouter:', JSON.stringify(data, null, 2));
+
+            if (data.error) {
+                // Si es rate limit, intentar con modelo alternativo o fallback
+                if (data.error.code === 429) {
+                    console.log('Rate limit alcanzado, usando recomendaciones de fallback');
+                    return this.generarRecomendacionesFallback(clima);
+                }
+                throw new Error(`OpenRouter API Error: ${data.error.message || 'Error desconocido'}`);
+            }
+
+            const recomendaciones = data.choices?.[0]?.message?.content ||
+                                  data.choices?.[0]?.text ||
+                                  "No se pudieron generar recomendaciones.";
+
+            return {
+                success: true,
+                recomendaciones: recomendaciones,
+                clima: {
+                    ciudad: clima.ciudad,
+                    temperatura: clima.temperatura,
+                    descripcion: clima.descripcion,
+                    humedad: clima.humedad
+                },
+                timestamp: new Date().toISOString()
+            };
+
+        } catch (error) {
+            console.error('Error al obtener recomendaciones climáticas:', error);
+            return {
+                success: false,
+                error: error.message,
+                recomendaciones: "No se pudieron cargar las recomendaciones climáticas.",
+                clima: null
+            };
+        }
+    }
+
+    // Generar recomendaciones de fallback cuando la API falla
+    static generarRecomendacionesFallback(clima) {
+        console.log('Generando recomendaciones de fallback para clima:', clima);
+
+        let recomendaciones = [];
+
+        let tempNeutral = 18;
+        let descNeutral = 'condiciones normales';
+        let humNeutral = 60;
+
+        // Si hay error en clima, usar recomendaciones generales
+        if (clima.error) {
+            recomendaciones = ["Paracetamol", "Ibuprofeno", "Vitaminas multivitamínicas", "Analgésicos generales", "Suplementos básicos"];
+        } else {
+            // Lógica simple basada en temperatura
+            if (clima.temperatura < 15) {
+                // Frío
+                recomendaciones = ["Paracetamol", "Jarabe para la tos", "Vitaminas C"];
+            } else if (clima.temperatura > 25) {
+                // Calor
+                recomendaciones = ["Protector solar", "Electrolitos", "Vitaminas"];
+            } else {
+                // Temperatura normal
+                recomendaciones = ["Analgésicos", "Vitaminas", "Suplementos"];
+            }
+
+            // Si hay lluvia o humedad alta, agregar productos relacionados
+            if (clima.humedad > 70 || clima.descripcion.toLowerCase().includes('lluvia')) {
+                recomendaciones.push("Antihistamínicos");
+            }
+        }
+
+        return {
+            success: true,
+            recomendaciones: recomendaciones.slice(0, 5).join(", "),
+            clima: {
+                ciudad: clima.ciudad,
+                temperatura: clima.temperatura || tempNeutral,
+                descripcion: clima.descripcion || descNeutral,
+                humedad: clima.humedad || humNeutral
+            },
+            timestamp: new Date().toISOString(),
+            fallback: true
+        };
     }
 }
 

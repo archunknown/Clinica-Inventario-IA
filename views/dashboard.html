@@ -613,16 +613,16 @@
                     </div>
                 </div> -->
 
-                <!-- Productos Más Vendidos -->
+                <!-- Recomendaciones IA por Clima -->
 
                 <div class="chart-card">
                     <div class="chart-header">
-                        <h3 class="chart-title">Productos Más Vendidos</h3>
+                        <h3 class="chart-title">Recomendaciones IA por Clima</h3>
                         <button class="header-btn" onclick="window.location.href='inventario.html'">Ver
                             inventario</button>
                     </div>
                     <div class="chart-placeholder" id="chartProductos">
-                        <span>Cargando productos más vendidos...</span>
+                        <span>Cargando recomendaciones climáticas...</span>
                     </div>
                 </div>
 
@@ -885,79 +885,109 @@
             }
         }
 
-        // Cargar productos más vendidos
+        // Cargar recomendaciones climáticas
         async function cargarTopProductos() {
             try {
                 const response = await fetch('/api/dashboard/top-productos');
                 const data = await response.json();
 
                 if (data.success) {
-                    actualizarTopProductos(data.data);
+                    actualizarRecomendacionesClima(data.data);
                 } else {
                     throw new Error(data.message);
                 }
             } catch (error) {
-                console.error('Error al cargar productos más vendidos:', error);
-                mostrarTopProductosEjemplo();
+                console.error('Error al cargar recomendaciones climáticas:', error);
+                mostrarRecomendacionesEjemplo();
             }
         }
 
-        // Actualizar productos más vendidos
-        function actualizarTopProductos(productos) {
+        // Actualizar recomendaciones climáticas
+        function actualizarRecomendacionesClima(data) {
             const chartProductos = document.getElementById('chartProductos');
 
-            if (productos.length === 0) {
-                chartProductos.innerHTML = '<span>No hay datos de ventas disponibles</span>';
+            if (!data || !data.recomendaciones) {
+                chartProductos.innerHTML = '<span>No se pudieron cargar las recomendaciones</span>';
                 return;
             }
 
-            // Crear una lista simple de productos más vendidos
-            const productosHTML = productos.slice(0, 5).map((producto, index) => {
-                return `
-                    <div style="display: flex; justify-content: space-between; align-items: center; padding: 10px; background: var(--color3); margin-bottom: 8px; border-radius: 6px;">
-                        <div>
-                            <div style="font-weight: 600;">${index + 1}. ${producto.nombre}</div>
-                            <div style="font-size: 0.8rem; color: var(--text-muted);">${producto.categoria}</div>
+            // Mostrar información del clima
+            const climaInfo = data.clima ? `
+                <div style="background: var(--color3); padding: 15px; border-radius: 8px; margin-bottom: 15px; text-align: center;">
+                    <div style="font-size: 1.1rem; font-weight: 600; margin-bottom: 5px;">🌤️ Clima en ${data.clima.ciudad}</div>
+                    <div style="font-size: 1.2rem; color: var(--accent);">${data.clima.temperatura}°C - ${data.clima.descripcion}</div>
+                    <div style="font-size: 0.9rem; color: var(--text-muted);">Humedad: ${data.clima.humedad}%</div>
+                </div>
+            ` : '<div style="background: var(--color3); padding: 10px; border-radius: 8px; margin-bottom: 15px; text-align: center; color: var(--warning);">No se pudo obtener el clima actual</div>';
+
+            // Procesar recomendaciones (asumiendo que es una lista separada por comas)
+            let recomendacionesHTML = '';
+            if (data.recomendaciones && data.recomendaciones.trim() !== '') {
+                // Limpiar y dividir las recomendaciones
+                const listaRecomendaciones = data.recomendaciones
+                    .replace(/[^\w\s,]/g, '') // Remover caracteres especiales
+                    .split(',')
+                    .map(item => item.trim())
+                    .filter(item => item.length > 0)
+                    .slice(0, 5); // Limitar a máximo 5
+
+                if (listaRecomendaciones.length > 0) {
+                    recomendacionesHTML = `
+                        <div style="margin-bottom: 10px;">
+                            <div style="font-size: 1rem; font-weight: 600; margin-bottom: 10px; color: var(--success);">🤖 Recomendaciones IA:</div>
+                            ${listaRecomendaciones.map((recomendacion, index) => `
+                                <div style="display: flex; align-items: center; padding: 8px 12px; background: var(--color4); margin-bottom: 6px; border-radius: 6px; gap: 10px;">
+                                    <span style="font-weight: 600; color: var(--accent); min-width: 20px;">${index + 1}.</span>
+                                    <span>${recomendacion}</span>
+                                </div>
+                            `).join('')}
                         </div>
-                        <div style="text-align: right;">
-                            <div style="font-weight: 600; color: var(--accent);">${producto.total_vendido} unidades</div>
-                            <div style="font-size: 0.8rem; color: var(--success);">S/ ${parseFloat(producto.total_ingresos).toFixed(2)}</div>
-                        </div>
-                    </div>
-                `;
-            }).join('');
+                    `;
+                } else {
+                    recomendacionesHTML = '<div style="color: var(--text-muted);">No se encontraron recomendaciones específicas</div>';
+                }
+            } else {
+                recomendacionesHTML = '<div style="color: var(--text-muted);">No se pudieron generar recomendaciones</div>';
+            }
 
             chartProductos.innerHTML = `
                 <div style="width: 100%; height: 100%; overflow-y: auto; padding: 10px;">
-                    ${productosHTML}
+                    ${climaInfo}
+                    ${recomendacionesHTML}
+                    <div style="font-size: 0.8rem; color: var(--text-muted); text-align: center; margin-top: 15px; padding-top: 10px; border-top: 1px solid var(--color3);">
+                        Actualizado: ${new Date(data.timestamp).toLocaleString('es-PE')}
+                    </div>
                 </div>
             `;
         }
 
-        // Mostrar productos más vendidos de ejemplo
-        function mostrarTopProductosEjemplo() {
+        // Mostrar recomendaciones climáticas de ejemplo
+        function mostrarRecomendacionesEjemplo() {
             const chartProductos = document.getElementById('chartProductos');
             chartProductos.innerHTML = `
                 <div style="width: 100%; height: 100%; overflow-y: auto; padding: 10px;">
-                    <div style="display: flex; justify-content: space-between; align-items: center; padding: 10px; background: var(--color3); margin-bottom: 8px; border-radius: 6px;">
-                        <div>
-                            <div style="font-weight: 600;">1. Paracetamol</div>
-                            <div style="font-size: 0.8rem; color: var(--text-muted);">Analgésico</div>
+                    <div style="background: var(--color3); padding: 15px; border-radius: 8px; margin-bottom: 15px; text-align: center;">
+                        <div style="font-size: 1.1rem; font-weight: 600; margin-bottom: 5px;">🌤️ Clima en Chincha</div>
+                        <div style="font-size: 1.2rem; color: var(--accent);">22°C - Parcialmente nublado</div>
+                        <div style="font-size: 0.9rem; color: var(--text-muted);">Humedad: 65%</div>
+                    </div>
+                    <div style="margin-bottom: 10px;">
+                        <div style="font-size: 1rem; font-weight: 600; margin-bottom: 10px; color: var(--success);">🤖 Recomendaciones IA:</div>
+                        <div style="display: flex; align-items: center; padding: 8px 12px; background: var(--color4); margin-bottom: 6px; border-radius: 6px; gap: 10px;">
+                            <span style="font-weight: 600; color: var(--accent); min-width: 20px;">1.</span>
+                            <span>Paracetamol</span>
                         </div>
-                        <div style="text-align: right;">
-                            <div style="font-weight: 600; color: var(--accent);">2 unidades</div>
-                            <div style="font-size: 0.8rem; color: var(--success);">S/ 3.00</div>
+                        <div style="display: flex; align-items: center; padding: 8px 12px; background: var(--color4); margin-bottom: 6px; border-radius: 6px; gap: 10px;">
+                            <span style="font-weight: 600; color: var(--accent); min-width: 20px;">2.</span>
+                            <span>Vitaminas C</span>
+                        </div>
+                        <div style="display: flex; align-items: center; padding: 8px 12px; background: var(--color4); margin-bottom: 6px; border-radius: 6px; gap: 10px;">
+                            <span style="font-weight: 600; color: var(--accent); min-width: 20px;">3.</span>
+                            <span>Analgésicos</span>
                         </div>
                     </div>
-                    <div style="display: flex; justify-content: space-between; align-items: center; padding: 10px; background: var(--color3); margin-bottom: 8px; border-radius: 6px;">
-                        <div>
-                            <div style="font-weight: 600;">2. Amoxicilina</div>
-                            <div style="font-size: 0.8rem; color: var(--text-muted);">Antibiótico</div>
-                        </div>
-                        <div style="text-align: right;">
-                            <div style="font-weight: 600; color: var(--accent);">2 unidades</div>
-                            <div style="font-size: 0.8rem; color: var(--success);">S/ 5.60</div>
-                        </div>
+                    <div style="font-size: 0.8rem; color: var(--text-muted); text-align: center; margin-top: 15px; padding-top: 10px; border-top: 1px solid var(--color3);">
+                        Datos de ejemplo - Actualizado: ${new Date().toLocaleString('es-PE')}
                     </div>
                 </div>
             `;

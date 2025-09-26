@@ -1,4 +1,5 @@
 const db = require('../models/db');
+const IAInventarioService = require('../services/iaInventarioService');
 
 class DashboardController {
     // Obtener estadísticas generales del dashboard
@@ -111,37 +112,36 @@ class DashboardController {
         }
     }
 
-    // Obtener productos más vendidos
-    static async getTopProductos(req, res) {
+    // Obtener recomendaciones basadas en el clima
+    static async getRecomendacionesClima(req, res) {
         try {
-            const query = `
-                SELECT 
-                    m.nombre,
-                    m.categoria,
-                    COALESCE(SUM(dv.cantidad), 0) as total_vendido,
-                    COALESCE(SUM(dv.subtotal), 0) as total_ingresos
-                FROM medicamentos m
-                LEFT JOIN detalle_venta dv ON m.id = dv.medicamento_id
-                LEFT JOIN ventas v ON dv.venta_id = v.id
-                WHERE m.activo = true
-                  AND (v.fecha IS NULL OR v.fecha >= CURRENT_DATE - INTERVAL '30 days')
-                GROUP BY m.id, m.nombre, m.categoria
-                ORDER BY total_vendido DESC
-                LIMIT 10
-            `;
+            const resultado = await IAInventarioService.obtenerRecomendacionesClima();
 
-            const result = await db.query(query);
-
-            res.json({
-                success: true,
-                data: result.rows
-            });
+            if (resultado.success) {
+                res.json({
+                    success: true,
+                    data: {
+                        recomendaciones: resultado.recomendaciones,
+                        clima: resultado.clima,
+                        timestamp: resultado.timestamp
+                    }
+                });
+            } else {
+                res.status(500).json({
+                    success: false,
+                    message: resultado.error || 'Error al obtener recomendaciones climáticas',
+                    data: {
+                        recomendaciones: resultado.recomendaciones,
+                        clima: null
+                    }
+                });
+            }
 
         } catch (error) {
-            console.error('Error al obtener productos más vendidos:', error);
+            console.error('Error al obtener recomendaciones climáticas:', error);
             res.status(500).json({
                 success: false,
-                message: 'Error al obtener productos más vendidos'
+                message: 'Error interno del servidor al obtener recomendaciones'
             });
         }
     }
