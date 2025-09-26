@@ -193,37 +193,32 @@ TIPOS DE CONSULTAS QUE PUEDES RESPONDER:
             // Obtener contexto del inventario
             const contextoInventario = await this.obtenerContextoInventario();
 
-            // Crear contexto específico para recomendaciones climáticas
+            // Crear contexto específico para recomendaciones climáticas (versión optimizada para reducir tokens)
+            const inventarioResumido = contextoInventario.map(item => `- ${item.nombre} (${item.categoria}, stock: ${item.stock})`).join('\n');
             const context = `
-Eres un asistente inteligente de una clínica farmacéutica. Tu tarea es generar recomendaciones de productos basadas en las condiciones climáticas actuales.
+Eres un asistente inteligente de una clínica farmacéutica. Genera recomendaciones de productos basadas en el clima actual.
 
-DATOS DEL CLIMA ACTUAL:
+CLIMA ACTUAL:
 - Ciudad: ${clima.ciudad}, ${clima.pais}
 - Temperatura: ${clima.temperatura}°C
 - Condición: ${clima.descripcion}
 - Humedad: ${clima.humedad}%
 
-INVENTARIO DISPONIBLE:
-${JSON.stringify(contextoInventario, null, 2)}
+INVENTARIO DISPONIBLE (solo nombres y categorías relevantes):
+${inventarioResumido}
 
-INSTRUCCIONES PARA RECOMENDACIONES:
-1. Analiza las condiciones climáticas y sugiere productos apropiados del inventario
-2. Considera enfermedades o necesidades comunes según el clima:
-   - Frío (< 15°C): Resfriados, gripe, analgésicos, jarabes para tos, vitaminas C
-   - Calor (> 25°C): Protector solar, rehidratantes, vitaminas, medicamentos para insolación
-   - Lluvia/humedad alta: Productos para humedad, antifúngicos si aplica
-   - Condiciones normales: Vitaminas generales, analgésicos básicos
-3. Limita las recomendaciones a productos que EXISTAN en el inventario
-4. Proporciona al menos 3 recomendaciones cuando sea posible
-5. Si hay menos de 3 productos relevantes, limita a los disponibles
-6. Incluye solo el nombre del producto, no precios ni stock
-7. Mantén las recomendaciones generales y apropiadas para una farmacia
-8. Responde de forma concisa y directa
-
-FORMATO DE RESPUESTA:
-Lista los productos recomendados separados por comas, por ejemplo: "Paracetamol, Jarabe para la tos, Vitaminas C"
-
-IMPORTANTE: Solo incluye productos que estén disponibles en el inventario proporcionado.
+INSTRUCCIONES:
+1. Sugiere 3-5 productos del inventario según el clima:
+   - Frío (<15°C): Analgésicos (Paracetamol, Ibuprofeno), Vitaminas C, Jarabe para la Tos
+   - Calor (>25°C): Protector Solar, Electrolitos, Vitaminas
+   - Lluvia/Humedad alta (>70%): Antihistamínicos (Loratadina, Cetirizina)
+   - Normal (15-25°C): Analgésicos básicos, Vitaminas generales
+2. Solo usa productos del inventario listado.
+3. Responde SOLO con una lista numerada de nombres de productos, e.g.:
+1. Paracetamol
+2. Vitamina C
+3. Jarabe para la Tos
+No agregues explicaciones ni texto extra.
 `;
 
             // Llamar a OpenRouter API
@@ -241,7 +236,7 @@ IMPORTANTE: Solo incluye productos que estén disponibles en el inventario propo
                         { role: "user", content: `Genera recomendaciones de productos para las condiciones climáticas actuales: ${clima.temperatura}°C, ${clima.descripcion}, humedad ${clima.humedad}%.` }
                     ],
                     temperature: 0.7,
-                    max_tokens: 500
+                    max_tokens: 800
                 })
             });
 
@@ -258,9 +253,15 @@ IMPORTANTE: Solo incluye productos que estén disponibles en el inventario propo
                 throw new Error(`OpenRouter API Error: ${data.error.message || 'Error desconocido'}`);
             }
 
-            const recomendaciones = data.choices?.[0]?.message?.content ||
-                                  data.choices?.[0]?.text ||
-                                  "No se pudieron generar recomendaciones.";
+            let recomendaciones = data.choices?.[0]?.message?.content ||
+                               data.choices?.[0]?.text ||
+                               "No se pudieron generar recomendaciones.";
+
+            // Si la respuesta está vacía o truncada, usar fallback
+            if (!recomendaciones || recomendaciones.trim().length < 10 || data.choices[0].finish_reason === 'length') {
+                console.log('Respuesta IA incompleta o truncada, usando fallback');
+                return this.generarRecomendacionesFallback(clima);
+            }
 
             return {
                 success: true,
@@ -285,36 +286,83 @@ IMPORTANTE: Solo incluye productos que estén disponibles en el inventario propo
         }
     }
 
-    // Generar recomendaciones de fallback cuando la API falla
-    static generarRecomendacionesFallback(clima) {
-        console.log('Generando recomendaciones de fallback para clima:', clima);
-
-        let recomendaciones = [];
+    // Generar recomendaciones de fallback cuando la API falla (versión dinámica con consulta a DB)
+    static async generarRecomendacionesFallback(clima) {
+        console.log('Generando recomendaciones de fallback dinámicas para clima:', clima);
 
         let tempNeutral = 18;
         let descNeutral = 'condiciones normales';
         let humNeutral = 60;
 
-        // Si hay error en clima, usar recomendaciones generales
-        if (clima.error) {
-            recomendaciones = ["Paracetamol", "Ibuprofeno", "Vitaminas multivitamínicas", "Analgésicos generales", "Suplementos básicos"];
-        } else {
-            // Lógica simple basada en temperatura
-            if (clima.temperatura < 15) {
-                // Frío
-                recomendaciones = ["Paracetamol", "Jarabe para la tos", "Vitaminas C"];
-            } else if (clima.temperatura > 25) {
-                // Calor
-                recomendaciones = ["Protector solar", "Electrolitos", "Vitaminas"];
+        let recomendaciones = [];
+
+        try {
+            // Si hay error en clima, usar recomendaciones generales
+            if (clima.error) {
+                const query = `
+                    SELECT nombre FROM medicamentos 
+                    WHERE activo = true AND stock > 0 
+                    AND (categoria ILIKE '%analg%' OR categoria ILIKE '%vitamina%' OR nombre ILIKE '%paracetamol%' OR nombre ILIKE '%ibuprofeno%')
+                    LIMIT 5
+                `;
+                const result = await db.query(query);
+                recomendaciones = result.rows.map(row => row.nombre);
             } else {
-                // Temperatura normal
-                recomendaciones = ["Analgésicos", "Vitaminas", "Suplementos"];
+                // Lógica dinámica basada en temperatura y clima
+                let query = '';
+                if (clima.temperatura < 15) {
+                    // Frío: Analgésicos, vitaminas C, jarabes
+                    query = `
+                        SELECT nombre FROM medicamentos 
+                        WHERE activo = true AND stock > 0 
+                        AND (categoria ILIKE '%analg%' OR categoria ILIKE '%vitamina%' OR nombre ILIKE '%paracetamol%' OR nombre ILIKE '%jarabe%' OR nombre ILIKE '%tos%')
+                        ORDER BY stock ASC
+                        LIMIT 5
+                    `;
+                } else if (clima.temperatura > 25) {
+                    // Calor: Protector solar, electrolitos, vitaminas
+                    query = `
+                        SELECT nombre FROM medicamentos 
+                        WHERE activo = true AND stock > 0 
+                        AND (nombre ILIKE '%protector%' OR nombre ILIKE '%solar%' OR nombre ILIKE '%electrolit%' OR categoria ILIKE '%vitamina%')
+                        ORDER BY stock ASC
+                        LIMIT 5
+                    `;
+                } else {
+                    // Temperatura normal: Analgésicos básicos, vitaminas, suplementos
+                    query = `
+                        SELECT nombre FROM medicamentos 
+                        WHERE activo = true AND stock > 0 
+                        AND (categoria ILIKE '%analg%' OR categoria ILIKE '%vitamina%' OR categoria ILIKE '%suplement%' OR nombre ILIKE '%paracetamol%' OR nombre ILIKE '%ibuprofeno%' OR nombre ILIKE '%vitamina%')
+                        ORDER BY stock ASC
+                        LIMIT 5
+                    `;
+                }
+
+                // Si hay lluvia o humedad alta, priorizar antihistamínicos
+                if (clima.humedad > 70 || clima.descripcion.toLowerCase().includes('lluvia')) {
+                    query = query.replace('LIMIT 5', 'AND (categoria ILIKE \'%antihist%\' OR nombre ILIKE \'%loratadina%\' OR nombre ILIKE \'%cetirizina%\') LIMIT 5');
+                }
+
+                const result = await db.query(query);
+                recomendaciones = result.rows.map(row => row.nombre);
+
+                // Si no hay suficientes, agregar genéricos como fallback final
+                if (recomendaciones.length < 3) {
+                    recomendaciones.push('Paracetamol', 'Vitamina C', 'Ibuprofeno');
+                    recomendaciones = [...new Set(recomendaciones)].slice(0, 5); // Eliminar duplicados
+                }
             }
 
-            // Si hay lluvia o humedad alta, agregar productos relacionados
-            if (clima.humedad > 70 || clima.descripcion.toLowerCase().includes('lluvia')) {
-                recomendaciones.push("Antihistamínicos");
+            // Si aún vacío, usar genéricos
+            if (recomendaciones.length === 0) {
+                recomendaciones = ['Paracetamol', 'Vitamina C', 'Ibuprofeno'];
             }
+
+        } catch (error) {
+            console.error('Error en consulta fallback:', error);
+            // Fallback final hard-coded
+            recomendaciones = ['Paracetamol', 'Vitamina C', 'Ibuprofeno'];
         }
 
         return {
