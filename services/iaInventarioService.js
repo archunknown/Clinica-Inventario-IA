@@ -72,7 +72,7 @@ TIPOS DE CONSULTAS QUE PUEDES RESPONDER:
                     "Content-Type": "application/json"
                 },
                 body: JSON.stringify({
-                    model: "deepseek/deepseek-chat-v3.1:free",
+                    model: "deepseek/deepseek-r1:free",
                     messages: [
                         { role: "system", content: context },
                         { role: "user", content: pregunta }
@@ -83,8 +83,16 @@ TIPOS DE CONSULTAS QUE PUEDES RESPONDER:
             });
 
             const data = await response.json();
-            
+
             if (data.error) {
+                // Manejar rate limit específicamente
+                if (data.error.code === 429) {
+                    return {
+                        success: false,
+                        error: 'Rate limit alcanzado. Por favor, intenta nuevamente en unos minutos.',
+                        respuesta: "Lo siento, he alcanzado el límite de consultas por ahora. Por favor, intenta nuevamente en unos minutos."
+                    };
+                }
                 throw new Error(data.error.message || 'Error en la API de IA');
             }
 
@@ -190,6 +198,8 @@ TIPOS DE CONSULTAS QUE PUEDES RESPONDER:
             // Obtener datos del clima actual
             const clima = await WeatherService.obtenerClimaActual();
 
+            // COMENTADO: Llamadas a OpenRouter para forzar fallback y evitar uso de API
+            /*
             // Obtener contexto del inventario
             const contextoInventario = await this.obtenerContextoInventario();
 
@@ -245,12 +255,9 @@ No agregues explicaciones ni texto extra.
             console.log('Respuesta de OpenRouter:', JSON.stringify(data, null, 2));
 
             if (data.error) {
-                // Si es rate limit, intentar con modelo alternativo o fallback
-                if (data.error.code === 429) {
-                    console.log('Rate limit alcanzado, usando recomendaciones de fallback');
-                    return this.generarRecomendacionesFallback(clima);
-                }
-                throw new Error(`OpenRouter API Error: ${data.error.message || 'Error desconocido'}`);
+                // Si es rate limit u otro error, usar fallback
+                console.log('Error en API de IA, usando recomendaciones de fallback:', data.error.message);
+                return this.generarRecomendacionesFallback(clima);
             }
 
             let recomendaciones = data.choices?.[0]?.message?.content ||
@@ -274,6 +281,11 @@ No agregues explicaciones ni texto extra.
                 },
                 timestamp: new Date().toISOString()
             };
+            */
+
+            // Forzar uso de fallback para evitar llamadas a OpenRouter
+            console.log('Usando recomendaciones de fallback (OpenRouter deshabilitado)');
+            return this.generarRecomendacionesFallback(clima);
 
         } catch (error) {
             console.error('Error al obtener recomendaciones climáticas:', error);

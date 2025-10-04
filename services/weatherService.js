@@ -10,6 +10,8 @@ let weatherCache = {
 class WeatherService {
     // Obtener datos del clima actual
     static async obtenerClimaActual() {
+        // COMENTADO: Llamadas a API de OpenWeather para forzar fallback
+        /*
         try {
             // Verificar si hay datos en cache válidos
             const ahora = Date.now();
@@ -93,26 +95,29 @@ class WeatherService {
             return climaProcesado;
 
         } catch (error) {
-            console.error('Error al obtener datos del clima:', error);
+        */
+            console.error('OpenWeather API deshabilitada - usando fallback');
 
             // Datos de fallback actualizados para coincidir con clima típico de Chincha (16°C, nubes, 59% humedad)
             const climaFallback = {
                 ciudad: 'Chincha',
                 pais: 'PE',
-                temperatura: 16,
+                temperatura: 24,
                 sensacion_termica: 16,
-                humedad: 59,
+                humedad: 29,
                 descripcion: 'nubes cubiertas',
                 condicion_principal: 'Clouds',
                 viento_velocidad: 3.5,
                 nubosidad: 90,
                 error: true,
-                mensaje_error: error.message
+                mensaje_error: 'OpenWeather API deshabilitada para usar solo fallback'
             };
 
             console.log('Usando datos de fallback para el clima');
             return climaFallback;
+        /*
         }
+        */
     }
 
     // Obtener descripción del clima en español
