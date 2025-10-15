@@ -1,0 +1,74 @@
+// Prisma schema for Clinica Inventario IA
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Usuario {
+  id        Int      @id @default(autoincrement())
+  username  String   @unique
+  password  String
+  rol       String   @default("cajero")
+  ventas    Venta[]
+
+  @@map("usuarios")
+}
+
+model Cliente {
+  id               Int      @id @default(autoincrement())
+  dni              String   @unique @db.VarChar(15)
+  nombre           String?  @db.VarChar(50)
+  apellidoPaterno  String?  @db.VarChar(50)
+  apellidoMaterno  String?  @db.VarChar(50)
+  createdAt        DateTime @default(now()) @map("created_at")
+  updatedAt        DateTime @updatedAt @map("updated_at")
+  ventas           Venta[]
+
+  @@map("clientes")
+}
+
+model Medicamento {
+  id           Int              @id @default(autoincrement())
+  nombre       String
+  categoria    String?
+  descripcion  String?
+  stock        Int
+  precio       Decimal          @db.Decimal(10, 2)
+  unidad       String           @default("unidades")
+  activo       Boolean          @default(true)
+  createdAt    DateTime         @default(now()) @map("created_at")
+  updatedAt    DateTime         @updatedAt @map("updated_at")
+  detalleVenta DetalleVenta[]
+
+  @@map("medicamentos")
+}
+
+model Venta {
+  id           Int            @id @default(autoincrement())
+  fecha        DateTime       @default(now())
+  usuarioId    Int?           @map("usuario_id")
+  total        Decimal        @db.Decimal(10, 2)
+  clienteId    Int?           @map("cliente_id")
+  usuario      Usuario?       @relation(fields: [usuarioId], references: [id], onDelete: SetNull)
+  cliente      Cliente?       @relation(fields: [clienteId], references: [id], onDelete: SetNull)
+  detalleVenta DetalleVenta[]
+
+  @@map("ventas")
+}
+
+model DetalleVenta {
+  id             Int         @id @default(autoincrement())
+  ventaId        Int         @map("venta_id")
+  medicamentoId  Int         @map("medicamento_id")
+  cantidad       Int
+  subtotal       Decimal     @db.Decimal(10, 2)
+  precioUnitario Decimal     @db.Decimal(10, 2) @default(0.00) @map("precio_unitario")
+  venta          Venta       @relation(fields: [ventaId], references: [id], onDelete: Cascade)
+  medicamento    Medicamento @relation(fields: [medicamentoId], references: [id], onDelete: Cascade)
+
+  @@map("detalle_venta")
+}
